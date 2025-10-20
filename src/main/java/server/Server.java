@@ -1,0 +1,33 @@
+package server;
+
+import com.sun.net.httpserver.HttpServer;
+import controller.LandingPage;
+import controller.LoginHandler;
+import controller.MovieHandler;
+import repository.JsonMovieRepository;
+import service.MovieService;
+
+import java.io.IOException;
+import java.net.InetSocketAddress;
+
+public class Server {
+    public static void start() throws IOException {
+        HttpServer server = HttpServer.create(new InetSocketAddress(8080), 0);
+
+        MovieHandler movieHandler = new MovieHandler(
+                new MovieService(new JsonMovieRepository())
+        );
+
+        LoginHandler loginHandler = new LoginHandler();
+
+        LandingPage landingPage = new LandingPage();
+
+        server.createContext("/", landingPage);
+
+        server.createContext("/movies", movieHandler);
+        server.createContext("/login", loginHandler);
+        server.setExecutor(null);
+        server.start();
+        System.out.println("Server läuft auf Port 8080...");
+    }
+}
