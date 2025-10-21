@@ -38,7 +38,13 @@ public class LoginHandler implements HttpHandler {
                     os.write(response.getBytes());
                 }
             } else {
-                exchange.sendResponseHeaders(401, -1); // Unauthorized
+                String response = "{\"error\": \"Username oder Passwort sind falsch\"}";
+                exchange.getResponseHeaders().add("Content-Type", "application/json");
+                exchange.sendResponseHeaders(401, response.getBytes().length);
+
+                try (OutputStream os = exchange.getResponseBody()) {
+                    os.write(response.getBytes());
+                }
             }
         } else {
             exchange.sendResponseHeaders(405, -1); // Method Not Allowed

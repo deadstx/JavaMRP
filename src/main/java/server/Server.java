@@ -24,10 +24,11 @@ public class Server {
 
         server.createContext("/", landingPage);
 
-        server.createContext("/movies", movieHandler);
         server.createContext("/login", loginHandler);
+        server.createContext("/movies", movieHandler);
+
         server.setExecutor(null);
         server.start();
-        System.out.println("Server läuft auf Port 8080...");
+        System.out.println("Server läuft auf Port 8080");
     }
 }

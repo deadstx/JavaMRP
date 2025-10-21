@@ -31,8 +31,5 @@ public class MovieService {
         return movieList.stream().filter(m -> m.getId() == id).findFirst();
     }
 
-    // Weitere Beispiele:
-    // - Filme nach Genre suchen
-    // - Jahrgänge filtern
-    // - Duplikate vermeiden
+
 }
