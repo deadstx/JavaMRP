@@ -1,9 +1,10 @@
 package server;
 
 import com.sun.net.httpserver.HttpServer;
+import controller.GenericMediaHandler;
 import controller.LandingPage;
 import controller.LoginHandler;
-import controller.MovieHandler;
+import models.Movie;
 import repository.JsonMovieRepository;
 import service.MovieService;
 
@@ -14,9 +15,6 @@ public class Server {
     public static void start() throws IOException {
         HttpServer server = HttpServer.create(new InetSocketAddress(8080), 0);
 
-        MovieHandler movieHandler = new MovieHandler(
-                new MovieService(new JsonMovieRepository())
-        );
 
         LoginHandler loginHandler = new LoginHandler();
 
@@ -25,7 +23,15 @@ public class Server {
         server.createContext("/", landingPage);
 
         server.createContext("/login", loginHandler);
-        server.createContext("/movies", movieHandler);
+
+        server.createContext("/movies", new GenericMediaHandler<>(
+                new MovieService(new JsonMovieRepository()), // Repository nicht vergessen!
+                Movie.class,
+                "movies"
+        ));
+
+
+
 
         server.setExecutor(null);
         server.start();

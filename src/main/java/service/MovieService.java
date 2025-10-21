@@ -1,35 +1,36 @@
 package service;
 
 import models.Movie;
-import repository.MovieRepository;
+import repository.JsonMovieRepository;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-public class MovieService {
+public class MovieService implements MediaService<Movie> {
 
-    private final List<Movie> movieList; // In-Memory-Cache für Schreiboperationen
+    private final JsonMovieRepository repo;
 
-    public MovieService(MovieRepository repository) {
-        this.movieList = new ArrayList<>(repository.loadMovies());
+    public MovieService(JsonMovieRepository repo) {
+        this.repo = repo;
     }
 
-    public List<Movie> getAllMovies() {
-        return new ArrayList<>(movieList); // defensive copy
+    @Override
+    public Optional<Movie> findById(int id) {
+        return repo.findById(id);
     }
 
-    public void addMovie(Movie movie) {
-        movieList.add(movie);
+    @Override
+    public List<Movie> findAll() {
+        return repo.findAll();
     }
 
-    public boolean deleteMovieById(int id) {
-        return movieList.removeIf(m -> m.getId() == id);
+    @Override
+    public void add(Movie movie) {
+        repo.save(movie);
     }
 
-    public Optional<Movie> findMovieById(int id) {
-        return movieList.stream().filter(m -> m.getId() == id).findFirst();
+    @Override
+    public boolean deleteById(int id) {
+        return repo.delete(id);
     }
-
-
 }
