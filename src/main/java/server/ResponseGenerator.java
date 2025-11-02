@@ -24,3 +24,4 @@ public class ResponseGenerator {
         sendJsonResponse(exchange, statusCode, json);
     }
 }
+

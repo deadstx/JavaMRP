@@ -2,13 +2,9 @@ package controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sun.net.httpserver.HttpExchange;
-import com.sun.net.httpserver.HttpHandler;
 import models.Media;
-import models.Movie;
 import server.ResponseGenerator;
-import service.AuthService;
 import service.MediaService;
-import service.MovieService;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -17,9 +13,9 @@ import java.util.List;
 public class GenericMediaHandler<T extends Media> extends AuthenticatedHandler {
 
     private final MediaService<T> service;
-    private final Class<T> clazz;
-    private final String basePath;
-    private final ObjectMapper mapper = new ObjectMapper();
+    private final Class<T> clazz; // wegen Type Erasure wichtig
+    private final String basePath; // movies, series
+    private final ObjectMapper mapper = new ObjectMapper(); // Java <-> JSON
     private final ResponseGenerator responseGenerator = new ResponseGenerator();
 
     public GenericMediaHandler(MediaService<T> service, Class<T> clazz, String basePath) {

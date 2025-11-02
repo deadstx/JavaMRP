@@ -10,7 +10,6 @@ import java.util.*;
 public class JsonMovieRepository {
 
     private final ObjectMapper mapper = new ObjectMapper();
-    private final String fileName = "sampleMovies.json";
     private List<Movie> movies;
 
     public JsonMovieRepository() {
@@ -18,18 +17,21 @@ public class JsonMovieRepository {
     }
 
     // Lädt Filme beim Start
-    private List<Movie> loadMovies() {
-        try (InputStream is = getClass().getClassLoader().getResourceAsStream(fileName)) {
-            if (is != null) {
-                return mapper.readValue(is, new TypeReference<>() {});
+    private final File fileName = new File("src/main/java/data/sampleMovies.json");
+
+    public List<Movie> loadMovies() {
+        try {
+            if (fileName.exists()) {
+                return mapper.readValue(fileName, new TypeReference<List<Movie>>() {});
             } else {
-                System.err.println(fileName + " nicht gefunden!");
+                System.out.println("Datei nicht gefunden: " + fileName.getAbsolutePath());
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return new ArrayList<>();
+        return Collections.emptyList();
     }
+
 
     public List<Movie> findAll() {
         return new ArrayList<>(movies); // Kopie zurückgeben
@@ -70,7 +72,7 @@ public class JsonMovieRepository {
 
     private void saveToFile() {
         try {
-            File file = new File(Objects.requireNonNull(getClass().getClassLoader().getResource(fileName)).toURI());
+            File file = new File(Objects.requireNonNull(getClass().getClassLoader().getResource(String.valueOf(fileName))).toURI());
             mapper.writerWithDefaultPrettyPrinter().writeValue(file, movies);
         } catch (Exception e) {
             System.err.println("Fehler beim Speichern von Filmen:");
