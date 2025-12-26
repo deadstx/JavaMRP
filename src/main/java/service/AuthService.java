@@ -31,10 +31,10 @@ public class AuthService {
 
 
     public void verifyToken(String token) {
-        JWT.require(algorithm)
-                .withIssuer("mrp-api")
-                .build()
-                .verify(token)
+        JWT.require(algorithm) // erstellt einen builder mit ausgewähltem algo
+                .withIssuer("mrp-api") // von wem kommen muss
+                .build() // baut den verifier
+                .verify(token) // prüft token
                 .getSubject();
     }
 
@@ -56,5 +56,6 @@ public class AuthService {
             throw new AuthException("Allgemeiner Authentifizierungsfehler", e);
         }
     }
+
 
 }

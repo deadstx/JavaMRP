@@ -4,6 +4,7 @@ import com.sun.net.httpserver.HttpServer;
 import controller.GenericMediaHandler;
 import controller.LandingPage;
 import controller.LoginHandler;
+import controller.ProfileHandler;
 import models.Movie;
 import models.Series;
 import repository.JsonMovieRepository;
@@ -20,10 +21,15 @@ public class Server {
 
         LoginHandler loginHandler = new LoginHandler();
         LandingPage landingPage = new LandingPage();
+        ProfileHandler profileHandler = new ProfileHandler();
 
         // SERVER ROUTES
         server.createContext("/", landingPage);
+
+
+        // AUTH ROUTES
         server.createContext("/login", loginHandler);
+       // server.createContext("/register", registerHandler);
 
 
         // MEDIA ROUTES
@@ -32,12 +38,23 @@ public class Server {
                 Movie.class, // wegen type Erasure
                 "movies"
         ));
-
         server.createContext("/series", new GenericMediaHandler<>(
-                new SeriesService(new JsonSeriesRepository()), // Repository nicht vergessen!
+                new SeriesService(new JsonSeriesRepository()),
                 Series.class, // wegen type Erasure
                 "series"
         ));
+
+        /*
+        server.createContext("/games", new GenericMediaHandler<>(
+                new GameService(new JsonGameRepository()),
+                Game.class, // wegen type Erasure
+                "games"
+        ));
+        */
+
+        // USER ROUTES
+        server.createContext("/profile", profileHandler);
+
 
         server.setExecutor(null);
         server.start();
