@@ -7,7 +7,7 @@ import controller.LoginHandler;
 import controller.ProfileHandler;
 import models.Movie;
 import models.Series;
-import repository.JsonMovieRepository;
+import repository.MovieRepository;
 import repository.JsonSeriesRepository;
 import service.MovieService;
 import service.SeriesService;
@@ -34,7 +34,7 @@ public class Server {
 
         // MEDIA ROUTES
         server.createContext("/movies", new GenericMediaHandler<>(
-                new MovieService(new JsonMovieRepository()),
+                new MovieService(new MovieRepository()),
                 Movie.class, // wegen type Erasure
                 "movies"
         ));
@@ -44,7 +44,7 @@ public class Server {
                 "series"
         ));
 
-        /*
+        /* KOMMT NOCH
         server.createContext("/games", new GenericMediaHandler<>(
                 new GameService(new JsonGameRepository()),
                 Game.class, // wegen type Erasure

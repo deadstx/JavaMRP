@@ -1,16 +1,16 @@
 package service;
 
 import models.Movie;
-import repository.JsonMovieRepository;
+import repository.MovieRepository;
 
 import java.util.List;
 import java.util.Optional;
 
 public class MovieService implements MediaService<Movie> {
 
-    private final JsonMovieRepository repo;
+    private final MovieRepository repo;
 
-    public MovieService(JsonMovieRepository repo) {
+    public MovieService(MovieRepository repo) {
         this.repo = repo;
     }
 
