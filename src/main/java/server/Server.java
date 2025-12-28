@@ -1,63 +1,84 @@
 package server;
 
 import com.sun.net.httpserver.HttpServer;
-import controller.GenericMediaHandler;
-import controller.LandingPage;
-import controller.LoginHandler;
-import controller.ProfileHandler;
+import controller.*;
 import models.Movie;
-import models.Series;
+//import models.Series;
 import repository.MovieRepository;
-import repository.JsonSeriesRepository;
+import repository.RegisterRepository;
+//import repository.SeriesRepository;
+import repository.UserRepository;
+import service.AuthService;
 import service.MovieService;
-import service.SeriesService;
+import service.RegisterService;
+//import service.SeriesService;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
 
 public class Server {
+
+
     public static void start() throws IOException {
-        HttpServer server = HttpServer.create(new InetSocketAddress(8080), 0);
+        try {
+            // 🔌 DB Connection
+            Connection conn = DriverManager.getConnection(
+                    "jdbc:postgresql://localhost:5431/mrp",
+                    "mrp_user",
+                    "test123"
+            );
 
-        LoginHandler loginHandler = new LoginHandler();
-        LandingPage landingPage = new LandingPage();
-        ProfileHandler profileHandler = new ProfileHandler();
+            // 🔐 AUTH
+            UserRepository userRepository = new UserRepository(conn);
+            RegisterRepository registerRepository = new RegisterRepository(conn); // neu
+            AuthService authService = new AuthService(userRepository);
+            RegisterService registerService = new RegisterService(registerRepository);
 
-        // SERVER ROUTES
-        server.createContext("/", landingPage);
+            // 🎬 MEDIA
+            MovieRepository movieRepository = new MovieRepository(conn);
+         //   SeriesRepository seriesRepository = new SeriesRepository(conn);
 
+            MovieService movieService = new MovieService(movieRepository);
+         //   SeriesService seriesService = new SeriesService(seriesRepository);
 
-        // AUTH ROUTES
-        server.createContext("/login", loginHandler);
-       // server.createContext("/register", registerHandler);
+            // 🌐 HTTP SERVER
+            HttpServer server = HttpServer.create(new InetSocketAddress(8080), 0);
 
+            server.createContext("/", new LandingPage());
 
-        // MEDIA ROUTES
-        server.createContext("/movies", new GenericMediaHandler<>(
-                new MovieService(new MovieRepository()),
-                Movie.class, // wegen type Erasure
-                "movies"
-        ));
-        server.createContext("/series", new GenericMediaHandler<>(
-                new SeriesService(new JsonSeriesRepository()),
-                Series.class, // wegen type Erasure
-                "series"
-        ));
+            // AUTH
+            server.createContext("/login", new LoginHandler(authService));
+            server.createContext("/register", new RegisterHandler(registerService));
+          //  server.createContext("/profile", new ProfileHandler(authService));
 
-        /* KOMMT NOCH
-        server.createContext("/games", new GenericMediaHandler<>(
-                new GameService(new JsonGameRepository()),
-                Game.class, // wegen type Erasure
-                "games"
-        ));
-        */
+            // MEDIA
+            server.createContext("/movies",
+                    new GenericMediaHandler<>(
+                            authService,
+                            movieService,
+                            Movie.class,
+                            "movies"
+                    )
+            );
 
-        // USER ROUTES
-        server.createContext("/profile", profileHandler);
+       /*     server.createContext("/series",
+                    new GenericMediaHandler<>(
+                            authService,
+                            seriesService,
+                            Series.class,
+                            "series"
+                    )
+            );
+*/
+            server.setExecutor(null);
+            server.start();
+            System.out.println("Server läuft auf Port 8080");
 
-
-        server.setExecutor(null);
-        server.start();
-        System.out.println("Server läuft auf Port 8080");
+        } catch (SQLException e) {
+            throw new RuntimeException("DB Verbindung fehlgeschlagen", e);
+        }
     }
 }

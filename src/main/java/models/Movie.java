@@ -1,7 +1,8 @@
 package models;
+import java.util.UUID;
 
 public class Movie implements Media {
-    private int id;
+    private UUID id;
     private String title;
     private String director;
     private String genre;
@@ -10,9 +11,9 @@ public class Movie implements Media {
 
     // Getter/Setter
     @Override
-    public int getId() { return id; }
+    public UUID getId() { return id; }
     @Override
-    public void setId(int id) { this.id = id; }
+    public void setId(UUID id) { this.id = id; }
 
     @Override
     public String getTitle() { return title; }

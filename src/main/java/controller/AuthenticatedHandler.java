@@ -9,8 +9,12 @@ import java.io.IOException;
 
 public abstract class AuthenticatedHandler implements HttpHandler {
 
-    protected final AuthService authService = new AuthService();
+    protected final AuthService authService;
     protected final ResponseGenerator responseGenerator = new ResponseGenerator();
+
+    protected AuthenticatedHandler(AuthService authService) {
+        this.authService = authService;
+    }
 
     protected boolean isAuthenticated(HttpExchange exchange) throws IOException {
         String cookieHeader = exchange.getRequestHeaders().getFirst("Cookie");

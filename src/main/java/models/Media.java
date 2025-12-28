@@ -1,8 +1,9 @@
 package models;
+import java.util.UUID;
 
 public interface Media {
-    int getId();
-    void setId(int id);
+    UUID getId();
+    void setId(UUID id);
 
     String getTitle();
     void setTitle(String title);

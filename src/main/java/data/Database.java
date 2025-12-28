@@ -3,12 +3,14 @@ package data;
 import java.sql.Connection;
 import java.sql.DriverManager;
 
+import data.DatabaseConfig;
+
 public class Database {
 
     public static void setupDB() {
-        String url = "jdbc:postgresql://localhost:5431/mrp";
-        String user = "mrp_user";
-        String password = "test123";
+        String url = DatabaseConfig.URL;
+        String user = DatabaseConfig.USER;
+        String password = DatabaseConfig.PASSWORD;
 
         testDB(url, user, password);
     }

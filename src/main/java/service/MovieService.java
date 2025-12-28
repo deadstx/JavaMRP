@@ -5,6 +5,7 @@ import repository.MovieRepository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 public class MovieService implements MediaService<Movie> {
 
@@ -15,7 +16,7 @@ public class MovieService implements MediaService<Movie> {
     }
 
     @Override
-    public Optional<Movie> findById(int id) {
+    public Optional<Movie> findById(UUID id) {
         return repo.findById(id);
     }
 
@@ -30,7 +31,7 @@ public class MovieService implements MediaService<Movie> {
     }
 
     @Override
-    public boolean deleteById(int id) {
+    public boolean deleteById(UUID id) {
         return repo.delete(id);
     }
 }
