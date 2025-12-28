@@ -11,13 +11,24 @@ public interface Media {
     String getDirector();
     void setDirector(String director);
 
+    String getDescription();
+    void setDescription(String description);
+
+    int getReleaseYear();
+    void setReleaseYear(int release_year);
+
     String getGenre();
     void setGenre(String genre);
 
-    int getYear();
-    void setYear(int year);
+    int getAgeRestriction();
+    void setAgeRestriction(int age_restriction);
+
+    UUID getCreatorID();
+    void setCreatorID(UUID creator_id);
+
+    String getCreatedAt();
+    void setCreatedAt(String created_at);
 
     float getRating();
     void setRating(float rating);
-
 }

@@ -8,5 +8,5 @@ public interface MediaService<T> {
     Optional<T> findById(UUID id);
     List<T> findAll();
     void add(T item);
-    boolean deleteById(UUID id);
+    boolean deleteById(UUID id, UUID currentUserId);
 }

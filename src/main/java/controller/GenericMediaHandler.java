@@ -88,12 +88,15 @@ public class GenericMediaHandler<T extends Media> extends AuthenticatedHandler {
     }
 
     private void handleDelete(HttpExchange exchange) throws IOException {
-        String query = exchange.getRequestURI().getQuery(); // ?id=<uuid>
+        String path = exchange.getRequestURI().getPath();
+        UUID currentUserId = getCurrentUserId(exchange);
 
-        if (query != null && query.startsWith("id=")) {
+        // DELETE /movies/{uuid}
+        if (path.matches("/" + basePath + "/" + UUID_REGEX)) {
+            String idStr = path.split("/")[2];
             try {
-                UUID id = UUID.fromString(query.substring(3));
-                boolean deleted = service.deleteById(id);
+                UUID id = UUID.fromString(idStr);
+                boolean deleted = service.deleteById(id, currentUserId);
 
                 if (deleted) {
                     exchange.sendResponseHeaders(200, -1);
@@ -103,8 +106,10 @@ public class GenericMediaHandler<T extends Media> extends AuthenticatedHandler {
             } catch (IllegalArgumentException e) {
                 exchange.sendResponseHeaders(400, -1); // ungültige UUID
             }
+
         } else {
-            exchange.sendResponseHeaders(400, -1);
+            exchange.sendResponseHeaders(400, -1); // ungültiger Pfad
         }
     }
+
 }

@@ -31,7 +31,7 @@ public class MovieService implements MediaService<Movie> {
     }
 
     @Override
-    public boolean deleteById(UUID id) {
-        return repo.delete(id);
+    public boolean deleteById(UUID id, UUID currentUserId) {
+        return repo.delete(id, currentUserId);
     }
 }

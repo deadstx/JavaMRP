@@ -58,15 +58,28 @@ public class MovieRepository {
             if (movie.getId() == null) {
                 // INSERT
                 String sql = """
-                    INSERT INTO media (title, media_type, release_year, genres)
-                    VALUES (?, 'movie', ?, ?)
-                    RETURNING id
-                    """;
+                INSERT INTO media (
+                    title,
+                    director,
+                    description,
+                    release_year,
+                    genres,
+                    age_restriction,
+                    creator_id,
+                    media_type
+                )
+                VALUES (?, ?, ?, ?, ?, ?, ?, 'movie')
+                RETURNING id
+                """;
 
                 try (PreparedStatement stmt = conn.prepareStatement(sql)) {
                     stmt.setString(1, movie.getTitle());
-                    stmt.setInt(2, movie.getYear());
-                    stmt.setString(3, movie.getGenre());
+                    stmt.setString(2, movie.getDirector());
+                    stmt.setString(3, movie.getDescription());
+                    stmt.setInt(4, movie.getReleaseYear());
+                    stmt.setString(5, movie.getGenre());
+                    stmt.setInt(6, movie.getAgeRestriction());
+                    stmt.setObject(7, movie.getCreatorID());
 
                     try (ResultSet rs = stmt.executeQuery()) {
                         if (rs.next()) {
@@ -77,16 +90,26 @@ public class MovieRepository {
             } else {
                 // UPDATE
                 String sql = """
-                    UPDATE media
-                    SET title = ?, release_year = ?, genres = ?
-                    WHERE id = ?
-                    """;
+                UPDATE media
+                SET
+                    title = ?,
+                    director = ?,
+                    description = ?,
+                    release_year = ?,
+                    genres = ?,
+                    age_restriction = ?
+                WHERE id = ? AND media_type = 'movie'
+                """;
 
                 try (PreparedStatement stmt = conn.prepareStatement(sql)) {
                     stmt.setString(1, movie.getTitle());
-                    stmt.setInt(2, movie.getYear());
-                    stmt.setString(3, movie.getGenre());
-                    stmt.setObject(4, movie.getId());
+                    stmt.setString(2, movie.getDirector());
+                    stmt.setString(3, movie.getDescription());
+                    stmt.setInt(4, movie.getReleaseYear());
+                    stmt.setString(5, movie.getGenre());
+                    stmt.setInt(6, movie.getAgeRestriction());
+                    stmt.setObject(7, movie.getId());
+
                     stmt.executeUpdate();
                 }
             }
@@ -95,10 +118,19 @@ public class MovieRepository {
         }
     }
 
-    public boolean delete(UUID id) {
-        String sql = "DELETE FROM media WHERE id = ?";
+
+    public boolean delete(UUID movieId, UUID currentUserId) {
+        String sql = """
+        DELETE FROM media
+        WHERE id = ?
+          AND creator_id = ?
+          AND media_type = 'movie'
+        """;
+
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setObject(1, id);
+            System.out.println("GEHT BEI REPO");
+            stmt.setObject(1, movieId);
+            stmt.setObject(2, currentUserId);
             return stmt.executeUpdate() > 0;
         } catch (SQLException e) {
             e.printStackTrace();
@@ -106,12 +138,18 @@ public class MovieRepository {
         return false;
     }
 
+
     private Movie mapResultSetToMovie(ResultSet rs) throws SQLException {
         Movie movie = new Movie();
         movie.setId((UUID) rs.getObject("id"));
         movie.setTitle(rs.getString("title"));
-        movie.setYear(rs.getInt("release_year"));
+        movie.setDirector(rs.getString("director"));
+        movie.setDescription(rs.getString("description"));
+        movie.setReleaseYear(rs.getInt("release_year"));
         movie.setGenre(rs.getString("genres"));
+        movie.setAgeRestriction(rs.getInt("age_restriction"));
+        movie.setCreatorID((UUID) rs.getObject("creator_id"));
+        movie.setCreatedAt(rs.getString("created_at"));
         return movie;
     }
 }
