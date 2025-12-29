@@ -7,6 +7,8 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Map;
 
+
+
 public class ResponseGenerator {
 
     private static final ObjectMapper mapper = new ObjectMapper();
@@ -26,8 +28,9 @@ public class ResponseGenerator {
 
 
     public void sendJsonError(HttpExchange exchange, int statusCode, String message) throws IOException {
-        String json = mapper.writeValueAsString(Map.of("error", message));
-        sendJsonResponse(exchange, statusCode, json);
+        Map<String, String> errorBody = Map.of("error", message);
+        sendJsonResponse(exchange, statusCode, errorBody);
     }
+
 }
 

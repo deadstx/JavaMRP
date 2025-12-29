@@ -1,4 +1,5 @@
 package models;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 public interface Media {
@@ -26,8 +27,8 @@ public interface Media {
     UUID getCreatorID();
     void setCreatorID(UUID creator_id);
 
-    String getCreatedAt();
-    void setCreatedAt(String created_at);
+    LocalDateTime getCreatedAt();
+    void setCreatedAt(LocalDateTime created_at);
 
     float getRating();
     void setRating(float rating);

@@ -6,17 +6,12 @@ import models.Movie;
 //import models.Series;
 
 
-import repository.MovieRepository;
-import repository.RegisterRepository;
-import repository.ProfileRepository;
+import models.Rating;
+import repository.*;
 //import repository.SeriesRepository;
-import repository.UserRepository;
 
 
-import service.AuthService;
-import service.MovieService;
-import service.ProfileService;
-import service.RegisterService;
+import service.*;
 //import service.SeriesService;
 
 import java.io.IOException;
@@ -41,10 +36,12 @@ public class Server {
             UserRepository userRepository = new UserRepository(conn);
             RegisterRepository registerRepository = new RegisterRepository(conn);
             ProfileRepository profileRepository = new ProfileRepository(conn);
+            RatingRepository ratingRepository = new RatingRepository(conn);
 
             AuthService authService = new AuthService(userRepository);
             RegisterService registerService = new RegisterService(registerRepository);
             ProfileService profileService = new ProfileService(profileRepository);
+            RatingService ratingService = new RatingService(ratingRepository);
 
             // 🎬 MEDIA
             MovieRepository movieRepository = new MovieRepository(conn);
@@ -66,6 +63,9 @@ public class Server {
             server.createContext("/login", new LoginHandler(authService));
             server.createContext("/register", new RegisterHandler(registerService));
             server.createContext("/profile", new ProfileHandler(authService, profileService));
+
+            // RATINGS
+            server.createContext("/ratings", new RatingHandler(authService, ratingService));
 
             // MEDIA
             server.createContext("/movies",

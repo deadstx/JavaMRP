@@ -1,5 +1,6 @@
 package models;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 public class Movie implements Media {
@@ -12,7 +13,7 @@ public class Movie implements Media {
     private String genre;
     private int age_restriction;
     private UUID creator_id;
-    private String created_at;
+    private LocalDateTime created_at;
     private float rating;
 
     // ----- Konstruktoren -----
@@ -115,12 +116,12 @@ public class Movie implements Media {
     }
 
     @Override
-    public String getCreatedAt() {
+    public LocalDateTime getCreatedAt() {
         return created_at;
     }
 
     @Override
-    public void setCreatedAt(String created_at) {
+    public void setCreatedAt(LocalDateTime created_at) {
         this.created_at = created_at;
     }
 

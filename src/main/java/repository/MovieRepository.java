@@ -149,7 +149,7 @@ public class MovieRepository {
         movie.setGenre(rs.getString("genres"));
         movie.setAgeRestriction(rs.getInt("age_restriction"));
         movie.setCreatorID((UUID) rs.getObject("creator_id"));
-        movie.setCreatedAt(rs.getString("created_at"));
+        movie.setCreatedAt(rs.getTimestamp("created_at").toLocalDateTime());
         return movie;
     }
 }

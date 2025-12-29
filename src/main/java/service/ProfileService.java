@@ -17,9 +17,6 @@ public class ProfileService {
 
     // Benutzer registrieren
     public User getProfileData(UUID currentUserId) throws SQLException {
-        // repo aufrufen -> repo.fetchUserData
-        // HIER NOCH DIE AKTUELLE USER ID LADEN
-
         return (profileRepo.fetchUserProfile(currentUserId));
     }
 }
