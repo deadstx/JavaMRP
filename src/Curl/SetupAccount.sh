@@ -41,12 +41,4 @@ echo "GET /movies/5b0b20d6-3d4d-4ca2-bdcb-22a65af6cc76 (authenticated)"
 curl -b cookies.txt -X GET http://localhost:8080/movies/5b0b20d6-3d4d-4ca2-bdcb-22a65af6cc76
 echo -e "\n"
 
-# Film löschen
-
-echo "DELETE /movies with id (authenticated)"
-curl -b cookies.txt -X DELETE http://localhost:8080/movies/5b0b20d6-3d4d-4ca2-bdcb-22a65af6cc76
-echo -e "\n"
-
-echo "GET /movies/5b0b20d6-3d4d-4ca2-bdcb-22a65af6cc76 (authenticated)"
-curl -b cookies.txt -X GET http://localhost:8080/movies/5b0b20d6-3d4d-4ca2-bdcb-22a65af6cc76
-echo -e "\n"
+# PROFIL ABRUFEN

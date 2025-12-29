@@ -53,6 +53,4 @@ public class UserRepository {
             throw new RuntimeException("Fehler bei DB Zugriff", e);
         }
     }
-
-
 }

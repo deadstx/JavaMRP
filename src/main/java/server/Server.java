@@ -4,12 +4,18 @@ import com.sun.net.httpserver.HttpServer;
 import controller.*;
 import models.Movie;
 //import models.Series;
+
+
 import repository.MovieRepository;
 import repository.RegisterRepository;
+import repository.ProfileRepository;
 //import repository.SeriesRepository;
 import repository.UserRepository;
+
+
 import service.AuthService;
 import service.MovieService;
+import service.ProfileService;
 import service.RegisterService;
 //import service.SeriesService;
 
@@ -33,16 +39,23 @@ public class Server {
 
             // 🔐 AUTH
             UserRepository userRepository = new UserRepository(conn);
-            RegisterRepository registerRepository = new RegisterRepository(conn); // neu
+            RegisterRepository registerRepository = new RegisterRepository(conn);
+            ProfileRepository profileRepository = new ProfileRepository(conn);
+
             AuthService authService = new AuthService(userRepository);
             RegisterService registerService = new RegisterService(registerRepository);
+            ProfileService profileService = new ProfileService(profileRepository);
 
             // 🎬 MEDIA
             MovieRepository movieRepository = new MovieRepository(conn);
-         //   SeriesRepository seriesRepository = new SeriesRepository(conn);
+            //SeriesRepository seriesRepository = new SeriesRepository(conn);
+            // GameRepository gameRepository = new GameRepository(conn);
+
 
             MovieService movieService = new MovieService(movieRepository);
          //   SeriesService seriesService = new SeriesService(seriesRepository);
+            //   GameService gameService = new GameService(gameService);
+            
 
             // 🌐 HTTP SERVER
             HttpServer server = HttpServer.create(new InetSocketAddress(8080), 0);
@@ -52,7 +65,7 @@ public class Server {
             // AUTH
             server.createContext("/login", new LoginHandler(authService));
             server.createContext("/register", new RegisterHandler(registerService));
-          //  server.createContext("/profile", new ProfileHandler(authService));
+            server.createContext("/profile", new ProfileHandler(authService, profileService));
 
             // MEDIA
             server.createContext("/movies",

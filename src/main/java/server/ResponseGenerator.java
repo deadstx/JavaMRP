@@ -9,15 +9,21 @@ import java.util.Map;
 
 public class ResponseGenerator {
 
-    private final ObjectMapper mapper = new ObjectMapper();
+    private static final ObjectMapper mapper = new ObjectMapper();
 
-    public void sendJsonResponse(HttpExchange exchange, int statusCode, String json) throws IOException {
+    public void sendJsonResponse(HttpExchange exchange, int statusCode, Object body)
+            throws IOException {
+
+        String json = mapper.writeValueAsString(body);
+
         exchange.getResponseHeaders().add("Content-Type", "application/json");
         exchange.sendResponseHeaders(statusCode, json.getBytes().length);
+
         try (OutputStream os = exchange.getResponseBody()) {
             os.write(json.getBytes());
         }
     }
+
 
     public void sendJsonError(HttpExchange exchange, int statusCode, String message) throws IOException {
         String json = mapper.writeValueAsString(Map.of("error", message));
