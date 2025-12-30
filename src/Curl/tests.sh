@@ -10,9 +10,24 @@ curl -i -c cookies.txt -X POST http://localhost:8080/login \
 echo -e "\n"
 
 
-echo "Try GET Profile "
+echo "Try GET media "
 
-curl -b cookies.txt -X GET http://localhost:8080/movies
+curl -b cookies.txt -X GET http://localhost:8080/media
+echo -e "\n"
+
+echo "Try GET Specific media "
+
+curl -b cookies.txt -X GET http://localhost:8080/media/57916e79-db50-43b1-b0b6-956cde2037fb
+echo -e "\n"
+
+echo "Try GET ALL movies "
+
+curl -b cookies.txt -X GET http://localhost:8080/media/movies
+echo -e "\n"
+
+echo "Try GET ALL games "
+
+curl -b cookies.txt -X GET http://localhost:8080/media/games
 echo -e "\n"
 
 echo "Try GET Profile "
@@ -30,4 +45,9 @@ echo -e "\n"
 echo "Try GET RATING by userID "
 
 curl -b cookies.txt -X GET http://localhost:8080/ratings/user/1c100921-3c6e-4593-90d4-e63d40a02309
+echo -e "\n"
+
+echo "Try GET RATING by mediaID "
+
+curl -b cookies.txt -X GET http://localhost:8080/ratings/media/57916e79-db50-43b1-b0b6-956cde2037fb
 echo -e "\n"

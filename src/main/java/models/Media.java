@@ -1,35 +1,125 @@
 package models;
-import java.time.LocalDateTime;
+
 import java.util.UUID;
 
-public interface Media {
-    UUID getId();
-    void setId(UUID id);
+public class Media {
 
-    String getTitle();
-    void setTitle(String title);
+    private UUID id;
+    private String title;
+    private String director;
+    private String description;
+    private String media_type;
+    private int release_year;
+    private String genre;
+    private int age_restriction;
+    private UUID creator_id;
+    private String created_at;
+    private float rating;
 
-    String getDirector();
-    void setDirector(String director);
+    // ----- Konstruktoren -----
 
-    String getDescription();
-    void setDescription(String description);
+    public Media() {
+    }
 
-    int getReleaseYear();
-    void setReleaseYear(int release_year);
+    public Media(UUID id, String title, String director, String description, String media_type,
+                 int release_year, String genre, int age_restriction, UUID creator_id) {
+        this.id = id;
+        this.title = title;
+        this.director = director;
+        this.description = description;
+        this.media_type = media_type;
+        this.release_year = release_year;
+        this.genre = genre;
+        this.age_restriction = age_restriction;
+        this.creator_id = creator_id;
+    }
 
-    String getGenre();
-    void setGenre(String genre);
 
-    int getAgeRestriction();
-    void setAgeRestriction(int age_restriction);
+    public UUID getId() {
+        return id;
+    }
 
-    UUID getCreatorID();
-    void setCreatorID(UUID creator_id);
+    public void setId(UUID id) {
+        this.id = id;
+    }
 
-    LocalDateTime getCreatedAt();
-    void setCreatedAt(LocalDateTime created_at);
+    public String getTitle() {
+        return title;
+    }
 
-    float getRating();
-    void setRating(float rating);
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public String getDirector() {
+        return director;
+    }
+
+    public void setDirector(String director) {
+        this.director = director;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public String getMediaType() {
+        return media_type;
+    }
+
+    public void setMediaType(String media_type) {
+        this.media_type = media_type;
+    }
+
+    public int getReleaseYear() {
+        return release_year;
+    }
+
+    public void setReleaseYear(int release_year) {
+        this.release_year = release_year;
+    }
+
+    public String getGenre() {
+        return genre;
+    }
+
+    public void setGenre(String genre) {
+        this.genre = genre;
+    }
+
+    public int getAgeRestriction() {
+        return age_restriction;
+    }
+
+    public void setAgeRestriction(int age_restriction) {
+        this.age_restriction = age_restriction;
+    }
+
+    public UUID getCreatorId() {
+        return creator_id;
+    }
+
+    public void setCreatorId(UUID creator_id) {
+        this.creator_id = creator_id;
+    }
+
+    public String getCreatedAt() {
+        return created_at;
+    }
+
+    public void setCreatedAt(String created_at) {
+        this.created_at = created_at;
+    }
+
+    public float getRating() {
+        return rating;
+    }
+
+    public void setRating(float rating) {
+        this.rating = rating;
+    }
 }

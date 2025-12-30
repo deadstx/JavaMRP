@@ -2,17 +2,9 @@ package server;
 
 import com.sun.net.httpserver.HttpServer;
 import controller.*;
-import models.Movie;
-//import models.Series;
-
-
-import models.Rating;
+import models.Media;
 import repository.*;
-//import repository.SeriesRepository;
-
-
 import service.*;
-//import service.SeriesService;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -22,41 +14,49 @@ import java.sql.SQLException;
 
 public class Server {
 
-
     public static void start() throws IOException {
+
         try {
-            // 🔌 DB Connection
+            // ========================
+            // DB CONNECTION
+            // ========================
             Connection conn = DriverManager.getConnection(
                     "jdbc:postgresql://localhost:5431/mrp",
                     "mrp_user",
                     "test123"
             );
 
-            // 🔐 AUTH
+            // ========================
+            // REPOSITORIES
+            // ========================
             UserRepository userRepository = new UserRepository(conn);
             RegisterRepository registerRepository = new RegisterRepository(conn);
             ProfileRepository profileRepository = new ProfileRepository(conn);
             RatingRepository ratingRepository = new RatingRepository(conn);
+            MediaRepository mediaRepository = new MediaRepository(conn);
 
+            // ========================
+            // SERVICES
+            // ========================
             AuthService authService = new AuthService(userRepository);
             RegisterService registerService = new RegisterService(registerRepository);
             ProfileService profileService = new ProfileService(profileRepository);
             RatingService ratingService = new RatingService(ratingRepository);
+            MediaService mediaService = new MediaService(mediaRepository);
 
-            // 🎬 MEDIA
-            MovieRepository movieRepository = new MovieRepository(conn);
-            //SeriesRepository seriesRepository = new SeriesRepository(conn);
-            // GameRepository gameRepository = new GameRepository(conn);
+            // ========================
+            // HTTP SERVER
+            // ========================
+            HttpServer server = HttpServer.create(
+                    new InetSocketAddress(8080),
+                    0
+            );
 
+            // ========================
+            // ROUTES
+            // ========================
 
-            MovieService movieService = new MovieService(movieRepository);
-         //   SeriesService seriesService = new SeriesService(seriesRepository);
-            //   GameService gameService = new GameService(gameService);
-            
-
-            // 🌐 HTTP SERVER
-            HttpServer server = HttpServer.create(new InetSocketAddress(8080), 0);
-
+            // Landing Page
             server.createContext("/", new LandingPage());
 
             // AUTH
@@ -68,27 +68,23 @@ public class Server {
             server.createContext("/ratings", new RatingHandler(authService, ratingService));
 
             // MEDIA
-            server.createContext("/movies",
+            server.createContext(
+                    "/media",
                     new GenericMediaHandler<>(
                             authService,
-                            movieService,
-                            Movie.class,
-                            "movies"
+                            mediaService,
+                            Media.class,
+                            "media"
                     )
             );
 
-       /*     server.createContext("/series",
-                    new GenericMediaHandler<>(
-                            authService,
-                            seriesService,
-                            Series.class,
-                            "series"
-                    )
-            );
-*/
-            server.setExecutor(null);
+            // ========================
+            // START SERVER
+            // ========================
+            server.setExecutor(null); // default executor
             server.start();
-            System.out.println("Server läuft auf Port 8080");
+
+            System.out.println("Server läuft auf http://localhost:8080");
 
         } catch (SQLException e) {
             throw new RuntimeException("DB Verbindung fehlgeschlagen", e);
