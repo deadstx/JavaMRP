@@ -3,6 +3,7 @@ package service;
 import models.Rating;
 import repository.RatingRepository;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -13,36 +14,6 @@ public class RatingService {
 
     public RatingService(RatingRepository ratingRepository) {
         this.ratingRepository = ratingRepository;
-    }
-
-    /* ---------------------------------------------------
-     * CREATE
-     * --------------------------------------------------- */
-
-    public Rating createRating(UUID userId, UUID mediaId, int stars, String comment, String created_at) {
-
-        // 1. Validierung
-        validateStars(stars);
-
-        // 2. Prüfen, ob User bereits bewertet hat
-        if (ratingRepository.existsByUserAndMedia(userId, mediaId)) {
-            throw new IllegalStateException("User hat dieses Medium bereits bewertet.");
-        }
-
-        // 3. Rating erzeugen
-        Rating rating = new Rating(
-                UUID.randomUUID(),
-                userId,
-                mediaId,
-                stars,
-                comment,
-                created_at
-        );
-
-        // 4. Speichern
-        ratingRepository.save(rating);
-
-        return rating;
     }
 
     /* ---------------------------------------------------
@@ -69,10 +40,27 @@ public class RatingService {
      * DELETE
      * --------------------------------------------------- */
 
-    public void deleteRating(UUID ratingId, UUID currentUserId) {
-        // Repository stellt bereits sicher, dass nur eigene Ratings gelöscht werden
-        ratingRepository.deleteById(ratingId, currentUserId);
+    public boolean deleteRating(UUID ratingId, UUID currentUserId) {
+        return ratingRepository.deleteById(ratingId, currentUserId);
     }
+
+    /* ---------------------------------------------------
+     * POST
+     * --------------------------------------------------- */
+
+    public boolean addNewRating(Rating rating) {
+        return ratingRepository.addNewRating(rating);
+    }
+
+
+    /* ---------------------------------------------------
+     * UPDATE
+     * --------------------------------------------------- */
+
+    public boolean updateRatingStatus(UUID ratingId, UUID currentUserId) {
+        return ratingRepository.updateRatingStatus(ratingId, currentUserId);
+    }
+
 
     /* ---------------------------------------------------
      * HELPER / VALIDATION

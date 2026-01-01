@@ -2,6 +2,7 @@ package repository;
 
 import models.Rating;
 
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -22,10 +23,10 @@ public class RatingRepository {
     /* ---------------------------------------------------
      * CREATE
      * --------------------------------------------------- */
-    public void save(Rating rating) {
+    public boolean addNewRating(Rating rating) {
         String sql = """
-            INSERT INTO ratings (id, user_id, media_id, stars, comment, created_at)
-            VALUES (?, ?, ?, ?, ?, ?)
+            INSERT INTO ratings (id, user_id, media_id, stars, comment)
+            VALUES (?, ?, ?, ?, ?)
             """;
 
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -34,11 +35,13 @@ public class RatingRepository {
             stmt.setObject(3, rating.getMediaId());
             stmt.setInt(4, rating.getStars());
             stmt.setString(5, rating.getComment());
-            stmt.setTimestamp(6, Timestamp.valueOf(rating.getCreatedAt()));
+
 
             stmt.executeUpdate();
+            return true;
         } catch (SQLException e) {
             e.printStackTrace();
+            return false;
         }
     }
 
@@ -136,20 +139,56 @@ public class RatingRepository {
     }
 
     /* ---------------------------------------------------
-     * DELETE -> NOCH IMPLEMENTIEREN DASS MAN NUR EIGENE LÖSCHEN KANN
+     * DELETE
      * --------------------------------------------------- */
-
-    public void deleteById(UUID id, UUID currentUserId) {
+    public boolean deleteById(UUID id, UUID currentUserId) {
         String sql = "DELETE FROM ratings WHERE id = ? AND user_id = ?";
 
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setObject(1, id);
             stmt.setObject(2, currentUserId);
-            stmt.executeUpdate();
+
+            int affectedRows = stmt.executeUpdate();
+
+            if (affectedRows == 0) {
+                return false;
+            }
+
+            return true;
         } catch (SQLException e) {
             e.printStackTrace();
+            return false;
         }
     }
+
+    /* ---------------------------------------------------
+     * UPDATE STATUS
+     * --------------------------------------------------- */
+    public boolean updateRatingStatus(UUID ratingId, UUID currentUserId) {
+        String sql = """
+        UPDATE ratings
+        SET is_confirmed = TRUE
+        WHERE id = ? AND user_id = ?
+    """;
+
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setObject(1, ratingId);
+            stmt.setObject(2, currentUserId);
+
+            int affectedRows = stmt.executeUpdate();
+
+            if (affectedRows == 0) {
+                return false;
+            }
+
+            return true;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+
 
     /* ---------------------------------------------------
      * MAPPER

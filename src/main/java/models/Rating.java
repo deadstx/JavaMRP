@@ -5,13 +5,18 @@ import java.util.UUID;
 
 public class Rating {
 
-    private final UUID id;
-    private final UUID userId;
-    private final UUID mediaId;
-    private final int stars;
-    private final String comment;
-    private final String createdAt;
+    private UUID id;
+    private UUID userId;
+    private UUID mediaId;
+    private int stars;
+    private String comment;
+    private String createdAt;
 
+    // 🔹 Leerer Konstruktor für Jackson
+    public Rating() {
+    }
+
+    // 🔹 Voller Konstruktor (optional)
     public Rating(
             UUID id,
             UUID userId,
@@ -27,6 +32,8 @@ public class Rating {
         this.comment = comment;
         this.createdAt = createdAt;
     }
+
+    /* ---------------- GETTER ---------------- */
 
     public UUID getId() {
         return id;
@@ -52,4 +59,38 @@ public class Rating {
         return createdAt;
     }
 
+    /* ---------------- SETTER ---------------- */
+
+    public void setId(UUID id) {
+        this.id = id;
+    }
+
+    public void setUserId(UUID userId) {
+        this.userId = userId;
+    }
+
+    public void setMediaId(UUID mediaId) {
+        this.mediaId = mediaId;
+    }
+
+    public void setStars(int stars) {
+        this.stars = stars;
+    }
+
+    public void setComment(String comment) {
+        this.comment = comment;
+    }
+
+    public void setCreatedAt(String createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    /* --------- HELPER FÜR POST --------- */
+
+    public void initNewRating(UUID userId, UUID mediaId) {
+        this.id = UUID.randomUUID();
+        this.userId = userId;
+        this.mediaId = mediaId;
+        this.createdAt = LocalDateTime.now().toString();
+    }
 }

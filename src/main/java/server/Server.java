@@ -60,12 +60,19 @@ public class Server {
             server.createContext("/", new LandingPage());
 
             // AUTH
-            server.createContext("/login", new LoginHandler(authService));
-            server.createContext("/register", new RegisterHandler(registerService));
-            server.createContext("/profile", new ProfileHandler(authService, profileService));
+            server.createContext("/users/login", new LoginHandler(authService));
+            server.createContext("/users/register", new RegisterHandler(registerService));
+
+            //USERS
+            server.createContext("/users/profile", new ProfileHandler(authService, profileService));
+           // server.createContext("users/recommendations", new RecommendationHandler(authService));
+
 
             // RATINGS
             server.createContext("/ratings", new RatingHandler(authService, ratingService));
+
+            // FAVORITES
+
 
             // MEDIA
             server.createContext(

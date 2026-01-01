@@ -34,8 +34,9 @@ public class RatingHandler extends AuthenticatedHandler {
 
         switch (exchange.getRequestMethod()) {
             case "GET" -> handleGet(exchange);
-            case "POST" -> responseGenerator.sendJsonResponse(exchange, 200, "POST TEST");
-            case "DELETE" -> responseGenerator.sendJsonResponse(exchange, 200, "DELETE TEST");
+            case "POST" -> handlePost(exchange);
+            case "DELETE" -> handleDelete(exchange);
+            case "UPDATE" -> handleUpdate(exchange);
             default -> responseGenerator.sendJsonError(exchange, 405, "Method not allowed");
         }
     }
@@ -48,35 +49,26 @@ public class RatingHandler extends AuthenticatedHandler {
         String path = exchange.getRequestURI().getPath();
 
         /*
-         * GET /ratings/{ratingId}
+         * GET /ratings/media/{mediaId}
          */
-        if (path.matches("/ratings/" + UUID_REGEX)) {
-            UUID ratingId = UUID.fromString(path.split("/")[2]);
-            System.out.println("Rating ID im handler: " + ratingId);
+        if (path.matches("/ratings/media/" + UUID_REGEX)) {
+            UUID mediaId = UUID.fromString(path.substring(path.lastIndexOf("/") + 1));
 
-            Rating rating = service.getRatingById(ratingId);
+            List<Rating> ratings = service.getRatingsByMedia(mediaId);
 
-            if (rating == null) {
-                responseGenerator.sendJsonError(exchange, 404, "Rating nicht gefunden");
-                return;
-            }
-            // HIER KOMMT DER CODE NOCH HIN, also kommt eine antwort zurück
-            try {
-                String json = mapper.writeValueAsString(rating);
-                responseGenerator.sendJsonResponse(exchange, 200, json);
-            } catch (Exception e) {
-                e.printStackTrace();
-                responseGenerator.sendJsonError(exchange, 500, "Fehler beim Serialisieren");
-            }
-
+            responseGenerator.sendJsonResponse(
+                    exchange,
+                    200,
+                    mapper.writeValueAsString(ratings)
+            );
             return;
         }
 
         /*
-         * GET /ratings/user/{userId}
+         * GET /ratings/users/{userId}
          */
-        if (path.matches("/ratings/user/" + UUID_REGEX)) {
-            UUID userId = UUID.fromString(path.split("/")[3]);
+        if (path.matches("/ratings/users/" + UUID_REGEX)) {
+            UUID userId = UUID.fromString(path.substring(path.lastIndexOf("/") + 1));
 
             List<Rating> ratings = service.getRatingsByUser(userId);
 
@@ -88,19 +80,115 @@ public class RatingHandler extends AuthenticatedHandler {
             return;
         }
 
+        responseGenerator.sendJsonError(exchange, 404, "Pfad ungültig");
+    }
+
+    /* ---------------------------------------------------
+     * POST
+     * --------------------------------------------------- */
+
+    private void handlePost(HttpExchange exchange) throws IOException {
+        String path = exchange.getRequestURI().getPath();
+
         /*
-         * GET /ratings/media/{mediaId}
+         * POST /ratings/media/{mediaId}
          */
         if (path.matches("/ratings/media/" + UUID_REGEX)) {
-            UUID mediaId = UUID.fromString(path.split("/")[3]);
 
-            List<Rating> ratings = service.getRatingsByMedia(mediaId);
+            UUID mediaId = UUID.fromString(path.substring(path.lastIndexOf("/") + 1));
+            UUID userId = getCurrentUserId(exchange);
 
-            responseGenerator.sendJsonResponse(
-                    exchange,
-                    200,
-                    mapper.writeValueAsString(ratings)
-            );
+            // Request-Body lesen
+            String body = new String(exchange.getRequestBody().readAllBytes());
+
+            // JSON → Rating
+            Rating rating = mapper.readValue(body, Rating.class);
+
+            // Server setzt sichere Felder
+            rating.initNewRating(userId, mediaId);
+
+            boolean success = service.addNewRating(rating);
+
+            if (success) {
+                responseGenerator.sendJsonResponse(
+                        exchange,
+                        201,
+                        "Rating erstellt!"
+                );
+            } else {
+                responseGenerator.sendJsonError(
+                        exchange,
+                        400,
+                        "Rating konnte nicht erstellt werden"
+                );
+            }
+            return;
+        }
+
+        responseGenerator.sendJsonError(exchange, 404, "Pfad ungültig");
+    }
+
+
+
+    private void handleDelete(HttpExchange exchange) throws IOException {
+        String path = exchange.getRequestURI().getPath();
+
+        /*
+         * DELETE /ratings/media/{mediaId}
+         */
+        if (path.matches("/ratings/media/" + UUID_REGEX)) {
+
+            UUID ratingId = UUID.fromString(path.substring(path.lastIndexOf("/") + 1));
+            UUID userId = getCurrentUserId(exchange);
+
+            boolean success = service.deleteRating(ratingId, userId);
+
+            if (success) {
+                responseGenerator.sendJsonResponse(
+                        exchange,
+                        201,
+                        "Rating gelöscht!"
+                );
+            } else {
+                responseGenerator.sendJsonError(
+                        exchange,
+                        400,
+                        "Rating konnte nicht gelöscht werden."
+                );
+            }
+            return;
+        }
+
+        responseGenerator.sendJsonError(exchange, 404, "Pfad ungültig");
+    }
+
+
+    private void handleUpdate(HttpExchange exchange) throws IOException {
+        String path = exchange.getRequestURI().getPath();
+
+        /*
+         * POST /ratings/media/{ratingId}
+         */
+        if (path.matches("/ratings/media/" + UUID_REGEX)) {
+
+            UUID ratingId = UUID.fromString(path.substring(path.lastIndexOf("/") + 1));
+            UUID userId = getCurrentUserId(exchange);
+
+            boolean success = service.updateRatingStatus(ratingId, userId);
+
+            if (success) {
+                responseGenerator.sendJsonResponse(
+                        exchange,
+                        201,
+                        "Rating Confirmed!"
+                );
+            } else {
+                responseGenerator.sendJsonError(
+                        exchange,
+                        400,
+                        "Rating konnte nicht bearbeitet werden"
+                );
+            }
             return;
         }
 
