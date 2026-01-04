@@ -60,11 +60,11 @@ public class FavoriteRepository {
         return false;
     }
 
-    public List<Favorite> findFavoritesByUser(UUID currentUserId) {
-        List<Favorite> mediaList = new ArrayList<>();
+    public List<UUID> findFavoritesByUser(UUID currentUserId) {
+        List<UUID> mediaIds = new ArrayList<>();
 
         String sql = """
-            SELECT id, user_id, media_id
+            SELECT media_id
             FROM favorites
             WHERE user_id = ?
             """;
@@ -75,7 +75,7 @@ public class FavoriteRepository {
 
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
-                    mediaList.add(mapResultSetToFavorite(rs));
+                    mediaIds.add(rs.getObject("media_id", UUID.class));
                 }
             }
 
@@ -83,7 +83,7 @@ public class FavoriteRepository {
             e.printStackTrace();
         }
 
-        return mediaList;
+        return mediaIds;
     }
 
     private Favorite mapResultSetToFavorite(ResultSet rs) throws SQLException {

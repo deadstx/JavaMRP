@@ -141,11 +141,11 @@ public class RatingRepository {
     /* ---------------------------------------------------
      * DELETE
      * --------------------------------------------------- */
-    public boolean deleteById(UUID id, UUID currentUserId) {
-        String sql = "DELETE FROM ratings WHERE id = ? AND user_id = ?";
+    public boolean deleteById(UUID mediaId, UUID currentUserId) {
+        String sql = "DELETE FROM ratings WHERE media_id = ? AND user_id = ?";
 
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setObject(1, id);
+            stmt.setObject(1, mediaId);
             stmt.setObject(2, currentUserId);
 
             int affectedRows = stmt.executeUpdate();

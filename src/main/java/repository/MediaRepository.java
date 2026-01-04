@@ -5,6 +5,7 @@ import models.MediaType;
 
 import java.sql.*;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class MediaRepository {
 
@@ -70,6 +71,40 @@ public class MediaRepository {
 
         return Optional.empty();
     }
+
+    public List<Media> findByIdList(List<UUID> ids) {
+        if (ids.isEmpty()) return List.of();
+
+        String placeholders = ids.stream()
+                .map(id -> "?")
+                .collect(Collectors.joining(","));
+
+        String sql = """
+        SELECT id, title, description, release_year, genres,
+               age_restriction, creator_id, created_at, media_type
+        FROM media
+        WHERE id IN (""" + placeholders + ")";
+
+        List<Media> mediaList = new ArrayList<>();
+
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            for (int i = 0; i < ids.size(); i++) {
+                stmt.setObject(i + 1, ids.get(i));
+            }
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    mediaList.add(mapResultSetToMedia(rs));
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return mediaList;
+    }
+
+
 
     // ========================
     // SAVE (INSERT / UPDATE)

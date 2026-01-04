@@ -40,8 +40,8 @@ public class RatingService {
      * DELETE
      * --------------------------------------------------- */
 
-    public boolean deleteRating(UUID ratingId, UUID currentUserId) {
-        return ratingRepository.deleteById(ratingId, currentUserId);
+    public boolean deleteRating(UUID mediaId, UUID currentUserId) {
+        return ratingRepository.deleteById(mediaId, currentUserId);
     }
 
     /* ---------------------------------------------------
@@ -65,6 +65,10 @@ public class RatingService {
     /* ---------------------------------------------------
      * HELPER / VALIDATION
      * --------------------------------------------------- */
+
+    public boolean ratingExistsByMedia(UUID currentUserId, UUID mediaId) {
+        return ratingRepository.existsByUserAndMedia(currentUserId, mediaId);
+    }
 
     private void validateStars(int stars) {
         if (stars < 1 || stars > 5) {

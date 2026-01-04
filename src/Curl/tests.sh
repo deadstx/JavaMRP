@@ -6,7 +6,7 @@ rm -f cookies.txt
 echo "Try Login with correct credentials"
 curl -i -c cookies.txt -X POST http://localhost:8080/users/login \
   -H "Content-Type: application/json" \
-  -d "{\"username\":\"admin\",\"password\":\"test123\"}"
+  -d "{\"username\":\"testUser1\",\"password\":\"test123\"}"
 echo -e "\n"
 
 
@@ -66,19 +66,42 @@ curl -b cookies.txt -X GET http://localhost:8080/ratings/users/1c100921-3c6e-459
 echo -e "\n"
 
 
-echo "RATING EINES MEDIUMS LÖSCHEN"
+echo "STATUS EINES RATINGS UPDATEN"
 
-curl -b cookies.txt -i -X DELETE \
-  http://localhost:8080/ratings/media/4b9e28d4-5c0a-495b-80f5-e4e38b5e08e4
+curl -b cookies.txt -i -X PUT \
+  http://localhost:8080/ratings/media/08276ea9-3f37-4dfb-a6f8-4dbfce805d49
 
 echo -e "\n"
 
 
-echo "RATING EINES MEDIUMS LÖSCHEN"
 
-curl -b cookies.txt -i -X UPDATE \
-  http://localhost:8080/ratings/media/5ca5c924-f829-43d6-a790-335387cd72ce
 
+MEDIA_ID="145e2998-b308-4ee4-87e5-3c5994392877"
+BASE_URL="http://localhost:8080"
+
+echo "== MEDIA VOR UPDATE =="
+curl -b cookies.txt -X GET "$BASE_URL/media/$MEDIA_ID"
+echo -e "\n"
+
+echo "== MEDIA UPDATE (PUT) =="
+curl -i -b cookies.txt -X PUT "$BASE_URL/media/$MEDIA_ID" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "id": "'"$MEDIA_ID"'",
+    "title": "Updated Media Title",
+    "description": "Beschreibung wurde geändert",
+    "mediaType": "MOVIE",
+    "releaseYear": 2024
+  }'
+echo -e "\n"
+
+echo "== MEDIA NACH UPDATE =="
+curl -b cookies.txt -X GET "$BASE_URL/media/$MEDIA_ID"
+echo -e "\n"
+
+
+echo "== FAVORITES EINES USERS =="
+curl -b cookies.txt -X GET "$BASE_URL/favorites/users"
 echo -e "\n"
 
 

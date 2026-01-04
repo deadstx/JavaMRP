@@ -46,6 +46,7 @@ public class GenericMediaHandler<T extends Media> extends AuthenticatedHandler {
         switch (exchange.getRequestMethod()) {
             case "GET" -> handleGet(exchange);
             case "POST" -> handlePost(exchange);
+            case "PUT" -> handleUpdate(exchange);
             case "DELETE" -> handleDelete(exchange);
             default -> exchange.sendResponseHeaders(405, -1);
         }
@@ -136,6 +137,38 @@ public class GenericMediaHandler<T extends Media> extends AuthenticatedHandler {
 
         exchange.sendResponseHeaders(201, -1);
     }
+
+    // ========================
+    // UPDATE
+    // ========================
+    private void handleUpdate(HttpExchange exchange) throws IOException {
+        String path = exchange.getRequestURI().getPath();
+        UUID currentUserId = getCurrentUserId(exchange);
+
+        // PUT /media/{uuid}
+        if (!path.matches("/" + basePath + "/" + UUID_REGEX)) {
+            responseGenerator.sendJsonError(exchange, 400, "Ungültiger Pfad");
+            return;
+        }
+
+        UUID id = UUID.fromString(path.split("/")[2]);
+
+        // Body lesen
+        T updatedMedia = mapper.readValue(exchange.getRequestBody(), clazz);
+
+        // ID aus URL erzwingen (Sicherheitsmaßnahme)
+        updatedMedia.setId(id);
+
+        boolean updated = service.save(updatedMedia, currentUserId);
+
+        if (!updated) {
+            responseGenerator.sendJsonError(exchange, 403, "Keine Berechtigung");
+            return;
+        }
+
+        exchange.sendResponseHeaders(204, -1); // No Content
+    }
+
 
     // ========================
     // DELETE

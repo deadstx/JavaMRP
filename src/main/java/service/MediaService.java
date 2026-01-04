@@ -38,24 +38,37 @@ public class MediaService {
     // ========================
     // CREATE / UPDATE
     // ========================
-    public void save(Media media, UUID currentUserId) {
+    public boolean save(Media media, UUID currentUserId) {
 
-        // Sicherheits-Check
+        // UPDATE
         if (media.getId() != null) {
-            // Update → prüfen ob User Eigentümer ist
-            Optional<Media> existing = repo.findById(media.getId());
+            Optional<Media> existingOpt = repo.findById(media.getId());
 
-            if (existing.isEmpty() ||
-                    !existing.get().getCreatorId().equals(currentUserId)) {
-                throw new SecurityException("Kein Zugriff auf dieses Medium");
+            // Medium existiert nicht
+            if (existingOpt.isEmpty()) {
+                return false;
             }
+
+            Media existing = existingOpt.get();
+
+            // Kein Zugriff
+            if (!existing.getCreatorId().equals(currentUserId)) {
+                return false;
+            }
+
+            // Creator darf NICHT überschrieben werden
+            media.setCreatorId(existing.getCreatorId());
+
         } else {
-            // Insert → Creator setzen
+            // CREATE
             media.setCreatorId(currentUserId);
         }
 
         repo.save(media);
+        return true;
     }
+
+
 
     // ========================
     // DELETE

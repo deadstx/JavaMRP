@@ -36,7 +36,7 @@ public class RatingHandler extends AuthenticatedHandler {
             case "GET" -> handleGet(exchange);
             case "POST" -> handlePost(exchange);
             case "DELETE" -> handleDelete(exchange);
-            case "UPDATE" -> handleUpdate(exchange);
+            case "PUT" -> handleUpdate(exchange);
             default -> responseGenerator.sendJsonError(exchange, 405, "Method not allowed");
         }
     }
@@ -83,6 +83,7 @@ public class RatingHandler extends AuthenticatedHandler {
         responseGenerator.sendJsonError(exchange, 404, "Pfad ungültig");
     }
 
+
     /* ---------------------------------------------------
      * POST
      * --------------------------------------------------- */
@@ -93,40 +94,48 @@ public class RatingHandler extends AuthenticatedHandler {
         /*
          * POST /ratings/media/{mediaId}
          */
-        if (path.matches("/ratings/media/" + UUID_REGEX)) {
-
-            UUID mediaId = UUID.fromString(path.substring(path.lastIndexOf("/") + 1));
-            UUID userId = getCurrentUserId(exchange);
-
-            // Request-Body lesen
-            String body = new String(exchange.getRequestBody().readAllBytes());
-
-            // JSON → Rating
-            Rating rating = mapper.readValue(body, Rating.class);
-
-            // Server setzt sichere Felder
-            rating.initNewRating(userId, mediaId);
-
-            boolean success = service.addNewRating(rating);
-
-            if (success) {
-                responseGenerator.sendJsonResponse(
-                        exchange,
-                        201,
-                        "Rating erstellt!"
-                );
-            } else {
-                responseGenerator.sendJsonError(
-                        exchange,
-                        400,
-                        "Rating konnte nicht erstellt werden"
-                );
-            }
+        if (!path.matches("/ratings/media/" + UUID_REGEX)) {
+            responseGenerator.sendJsonError(exchange, 404, "Pfad ungültig");
             return;
         }
 
-        responseGenerator.sendJsonError(exchange, 404, "Pfad ungültig");
+        UUID mediaId = UUID.fromString(path.substring(path.lastIndexOf("/") + 1));
+        UUID userId = getCurrentUserId(exchange);
+
+        // Body lesen
+        String body = new String(exchange.getRequestBody().readAllBytes());
+        Rating rating = mapper.readValue(body, Rating.class);
+
+        // Sichere Felder serverseitig setzen
+        rating.initNewRating(userId, mediaId);
+
+        // Existenz PRÜFEN VOR INSERT
+        if (service.ratingExistsByMedia(userId, mediaId)) {
+            responseGenerator.sendJsonError(
+                    exchange,
+                    400,
+                    "Medium wurde bereits bewertet"
+            );
+            return;
+        }
+
+        boolean success = service.addNewRating(rating);
+
+        if (success) {
+            responseGenerator.sendJsonResponse(
+                    exchange,
+                    201,
+                    "Rating erstellt!"
+            );
+        } else {
+            responseGenerator.sendJsonError(
+                    exchange,
+                    400,
+                    "Rating konnte nicht erstellt werden"
+            );
+        }
     }
+
 
 
 
@@ -138,10 +147,10 @@ public class RatingHandler extends AuthenticatedHandler {
          */
         if (path.matches("/ratings/media/" + UUID_REGEX)) {
 
-            UUID ratingId = UUID.fromString(path.substring(path.lastIndexOf("/") + 1));
+            UUID mediaId = UUID.fromString(path.substring(path.lastIndexOf("/") + 1));
             UUID userId = getCurrentUserId(exchange);
 
-            boolean success = service.deleteRating(ratingId, userId);
+            boolean success = service.deleteRating(mediaId, userId);
 
             if (success) {
                 responseGenerator.sendJsonResponse(
