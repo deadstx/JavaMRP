@@ -39,11 +39,11 @@ public class MediaService {
     // CREATE / UPDATE
     // ========================
     public boolean save(Media media, UUID currentUserId) {
-
+        System.out.println("SERVICE GEHT MEDIA " + media.getId());
         // UPDATE
         if (media.getId() != null) {
             Optional<Media> existingOpt = repo.findById(media.getId());
-
+            System.out.println("SERV GEHT MEDIA");
             // Medium existiert nicht
             if (existingOpt.isEmpty()) {
                 return false;
@@ -67,6 +67,7 @@ public class MediaService {
         repo.save(media);
         return true;
     }
+
 
 
 

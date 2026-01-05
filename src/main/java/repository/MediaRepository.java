@@ -22,7 +22,7 @@ public class MediaRepository {
         List<Media> mediaList = new ArrayList<>();
 
         String sql = """
-            SELECT id, title, description, release_year, genres,
+            SELECT id, title, description, director, release_year, genres,
                    age_restriction, creator_id, created_at, media_type
             FROM media
             """ + (mediaType.isPresent() ? "WHERE media_type = ?" : "");
@@ -51,7 +51,7 @@ public class MediaRepository {
     // ========================
     public Optional<Media> findById(UUID id) {
         String sql = """
-            SELECT id, title, description, release_year, genres,
+            SELECT id, title, description, director, release_year, genres,
                    age_restriction, creator_id, created_at, media_type
             FROM media
             WHERE id = ?
@@ -80,7 +80,7 @@ public class MediaRepository {
                 .collect(Collectors.joining(","));
 
         String sql = """
-        SELECT id, title, description, release_year, genres,
+        SELECT id, title, description, director, release_year, genres,
                age_restriction, creator_id, created_at, media_type
         FROM media
         WHERE id IN (""" + placeholders + ")";
@@ -110,6 +110,8 @@ public class MediaRepository {
     // SAVE (INSERT / UPDATE)
     // ========================
     public void save(Media media) {
+        System.out.println("REPO GEHT MEDIA");
+
         try {
             if (media.getId() == null) {
                 insert(media);
@@ -121,29 +123,32 @@ public class MediaRepository {
         }
     }
 
+
     private void insert(Media media) throws SQLException {
         String sql = """
             INSERT INTO media (
                 title,
                 description,
+                director,
                 release_year,
                 genres,
                 age_restriction,
                 creator_id,
                 media_type
             )
-            VALUES (?, ?, ?, ?, ?, ?, ?)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
             RETURNING id
             """;
 
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, media.getTitle());
             stmt.setString(2, media.getDescription());
-            stmt.setInt(3, media.getReleaseYear());
-            stmt.setString(4, media.getGenre());
-            stmt.setInt(5, media.getAgeRestriction());
-            stmt.setObject(6, media.getCreatorId());
-            stmt.setString(7, media.getMediaType());
+            stmt.setString(3, media.getDirector());
+            stmt.setInt(4, media.getReleaseYear());
+            stmt.setString(5, media.getGenre());
+            stmt.setInt(6, media.getAgeRestriction());
+            stmt.setObject(7, media.getCreatorId());
+            stmt.setString(8, media.getMediaType());
 
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
@@ -159,6 +164,7 @@ public class MediaRepository {
             SET
                 title = ?,
                 description = ?,
+                director = ?,
                 release_year = ?,
                 genres = ?,
                 age_restriction = ?,
@@ -169,12 +175,13 @@ public class MediaRepository {
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, media.getTitle());
             stmt.setString(2, media.getDescription());
-            stmt.setInt(3, media.getReleaseYear());
-            stmt.setString(4, media.getGenre());
-            stmt.setInt(5, media.getAgeRestriction());
-            stmt.setString(6, media.getMediaType());
-            stmt.setObject(7, media.getId());
-            stmt.setObject(8, media.getCreatorId());
+            stmt.setString(3, media.getDirector());
+            stmt.setInt(4, media.getReleaseYear());
+            stmt.setString(5, media.getGenre());
+            stmt.setInt(6, media.getAgeRestriction());
+            stmt.setString(7, media.getMediaType());
+            stmt.setObject(8, media.getId());
+            stmt.setObject(9, media.getCreatorId());
 
             stmt.executeUpdate();
         }
@@ -209,6 +216,7 @@ public class MediaRepository {
         media.setId((UUID) rs.getObject("id"));
         media.setTitle(rs.getString("title"));
         media.setDescription(rs.getString("description"));
+        media.setDescription(rs.getString("director"));
         media.setReleaseYear(rs.getInt("release_year"));
         media.setGenre(rs.getString("genres"));
         media.setAgeRestriction(rs.getInt("age_restriction"));

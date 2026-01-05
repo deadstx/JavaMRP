@@ -100,19 +100,19 @@ public class GenericMediaHandler<T extends Media> extends AuthenticatedHandler {
         if (parts.length == 3) { // ["", "media", "movies"]
             String type = parts[2].toLowerCase();
 
-            Optional<MediaType> mediaType = switch (type) {
+            Optional<MediaType> media_type = switch (type) {
                 case "movies" -> Optional.of(MediaType.MOVIE);
                 case "series" -> Optional.of(MediaType.SERIES);
                 case "games"  -> Optional.of(MediaType.GAME);
                 default -> Optional.empty();
             };
 
-            if (mediaType.isEmpty()) {
+            if (media_type.isEmpty()) {
                 responseGenerator.sendJsonError(exchange, 404, "Unbekannter Media-Typ");
                 return;
             }
 
-            List<Media> items = service.findAll(mediaType);
+            List<Media> items = service.findAll(media_type);
             sendJson(exchange, 200, items);
             return;
         }
@@ -130,13 +130,60 @@ public class GenericMediaHandler<T extends Media> extends AuthenticatedHandler {
     private void handlePost(HttpExchange exchange) throws IOException {
         UUID currentUserId = getCurrentUserId(exchange);
 
-        InputStream body = exchange.getRequestBody();
-        T media = mapper.readValue(body, clazz);
+        try {
+            // 1️⃣ Debug Print: Handler startet
+            System.out.println("HANDLER STARTET POST");
+            System.out.flush();
 
-        service.save(media, currentUserId);
+            // 2️⃣ URI / Path ausgeben
+            String path = exchange.getRequestURI().getPath();
+            System.out.println("PATH: " + path);
+            System.out.flush();
 
-        exchange.sendResponseHeaders(201, -1);
+            // 3️⃣ Request Body lesen und in Media-Objekt mappen
+            InputStream bodyStream = exchange.getRequestBody();
+            if (bodyStream == null) {
+                System.out.println("KEIN BODY GELESEN!");
+                exchange.sendResponseHeaders(400, -1); // Bad Request
+                return;
+            }
+
+            T media;
+            try {
+                media = mapper.readValue(bodyStream, clazz);
+            } catch (Exception e) {
+                System.err.println("FEHLER beim Parsen des Bodys:");
+                e.printStackTrace();
+                exchange.sendResponseHeaders(400, -1); // Bad Request
+                return;
+            }
+
+            System.out.println("MEDIA GELADEN: " + media);
+            System.out.flush();
+
+            // 4️⃣ Media speichern
+            boolean saved = service.save(media, currentUserId);
+            if (!saved) {
+                System.out.println("SPEICHERN NICHT ERLAUBT!");
+                exchange.sendResponseHeaders(403, -1); // Forbidden
+                return;
+            }
+
+            // 5️⃣ Erfolgreiche Response
+            exchange.sendResponseHeaders(201, -1); // Created
+            System.out.println("MEDIA ERFOLGREICH GESPEICHERT");
+            System.out.flush();
+
+        } catch (Exception e) {
+            // 6️⃣ Allgemeine Fehlerbehandlung
+            System.err.println("UNERWARTETER FEHLER IN HANDLEPOST:");
+            e.printStackTrace();
+            exchange.sendResponseHeaders(500, -1); // Internal Server Error
+        } finally {
+            exchange.close(); // Stream immer schließen
+        }
     }
+
 
     // ========================
     // UPDATE
