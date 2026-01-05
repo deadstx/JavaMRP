@@ -21,6 +21,7 @@ public class MediaRepository {
     public List<Media> findAll(Optional<MediaType> mediaType) {
         List<Media> mediaList = new ArrayList<>();
 
+
         String sql = """
             SELECT id, title, description, director, release_year, genres,
                    age_restriction, creator_id, created_at, media_type
@@ -110,7 +111,6 @@ public class MediaRepository {
     // SAVE (INSERT / UPDATE)
     // ========================
     public void save(Media media) {
-        System.out.println("REPO GEHT MEDIA");
 
         try {
             if (media.getId() == null) {

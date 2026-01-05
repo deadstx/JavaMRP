@@ -25,8 +25,8 @@ public class RatingRepository {
      * --------------------------------------------------- */
     public boolean addNewRating(Rating rating) {
         String sql = """
-            INSERT INTO ratings (id, user_id, media_id, stars, comment)
-            VALUES (?, ?, ?, ?, ?)
+            INSERT INTO ratings (id, user_id, media_id, stars)
+            VALUES (?, ?, ?, ?)
             """;
 
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -34,8 +34,6 @@ public class RatingRepository {
             stmt.setObject(2, rating.getUserId());
             stmt.setObject(3, rating.getMediaId());
             stmt.setInt(4, rating.getStars());
-            stmt.setString(5, rating.getComment());
-
 
             stmt.executeUpdate();
             return true;
@@ -195,14 +193,12 @@ public class RatingRepository {
      * --------------------------------------------------- */
 
     private Rating fromResultSet(ResultSet rs) throws SQLException {
-        Timestamp ts = rs.getTimestamp("created_at");
 
         return new Rating(
                 rs.getObject("id", UUID.class),
                 rs.getObject("user_id", UUID.class),
                 rs.getObject("media_id", UUID.class),
                 rs.getInt("stars"),
-                rs.getString("comment"),
                 rs.getString("created_at")
         );
     }

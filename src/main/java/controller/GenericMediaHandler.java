@@ -101,9 +101,9 @@ public class GenericMediaHandler<T extends Media> extends AuthenticatedHandler {
             String type = parts[2].toLowerCase();
 
             Optional<MediaType> media_type = switch (type) {
-                case "movies" -> Optional.of(MediaType.MOVIE);
-                case "series" -> Optional.of(MediaType.SERIES);
-                case "games"  -> Optional.of(MediaType.GAME);
+                case "movies" -> Optional.of(MediaType.movie);
+                case "series" -> Optional.of(MediaType.series);
+                case "games"  -> Optional.of(MediaType.game);
                 default -> Optional.empty();
             };
 

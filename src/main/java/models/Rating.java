@@ -9,7 +9,6 @@ public class Rating {
     private UUID userId;
     private UUID mediaId;
     private int stars;
-    private String comment;
     private String createdAt;
 
     // 🔹 Leerer Konstruktor für Jackson
@@ -22,14 +21,12 @@ public class Rating {
             UUID userId,
             UUID mediaId,
             int stars,
-            String comment,
             String createdAt
     ) {
         this.id = id;
         this.userId = userId;
         this.mediaId = mediaId;
         this.stars = stars;
-        this.comment = comment;
         this.createdAt = createdAt;
     }
 
@@ -51,9 +48,6 @@ public class Rating {
         return stars;
     }
 
-    public String getComment() {
-        return comment;
-    }
 
     public String getCreatedAt() {
         return createdAt;
@@ -75,10 +69,6 @@ public class Rating {
 
     public void setStars(int stars) {
         this.stars = stars;
-    }
-
-    public void setComment(String comment) {
-        this.comment = comment;
     }
 
     public void setCreatedAt(String createdAt) {

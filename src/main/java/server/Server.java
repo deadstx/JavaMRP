@@ -35,6 +35,7 @@ public class Server {
             RatingRepository ratingRepository = new RatingRepository(conn);
             MediaRepository mediaRepository = new MediaRepository(conn);
             FavoriteRepository favoriteRepository = new FavoriteRepository(conn);
+            CommentRepository commentRepository = new CommentRepository(conn);
 
             // ========================
             // SERVICES
@@ -45,6 +46,7 @@ public class Server {
             RatingService ratingService = new RatingService(ratingRepository);
             MediaService mediaService = new MediaService(mediaRepository);
             FavoriteService favoriteService = new FavoriteService(favoriteRepository, mediaRepository);
+            CommentService commentService = new CommentService(commentRepository);
 
             // ========================
             // HTTP SERVER
@@ -75,6 +77,9 @@ public class Server {
 
             // FAVORITES
             server.createContext("/favorites", new FavoriteHandler(authService, favoriteService));
+
+            // COMMENTS
+            server.createContext("/comments", new CommentHandler(authService, commentService));
 
             // MEDIA
             server.createContext(
