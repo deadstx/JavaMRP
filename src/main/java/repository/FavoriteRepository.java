@@ -2,14 +2,12 @@ package repository;
 
 import models.Favorite;
 
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-
 import java.util.UUID;
 
 public class FavoriteRepository {
@@ -20,38 +18,65 @@ public class FavoriteRepository {
         this.conn = conn;
     }
 
-    private void addNewFavorite(Favorite favorite) throws SQLException {
+    /**
+     * Prüft, ob ein Favorite bereits existiert
+     */
+    public boolean checkIfExists(UUID mediaId, UUID userId) {
         String sql = """
-            INSERT INTO media (
-                media_id,
-                user_id
-            )
-            VALUES (?, ?)
-            RETURNING id
+            SELECT 1
+            FROM favorites
+            WHERE user_id = ? AND media_id = ?
             """;
 
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setObject(1, favorite.getMediaId());
-            stmt.setObject(2, favorite.getUserId());
+            stmt.setObject(1, userId);
+            stmt.setObject(2, mediaId);
 
             try (ResultSet rs = stmt.executeQuery()) {
-                if (rs.next()) {
-                    favorite.setId((UUID) rs.getObject("id"));
-                }
+                return rs.next(); // true = existiert, false = existiert nicht
             }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return false;
+    }
+
+    /**
+     * Fügt ein Favorite hinzu und gibt das erstellte Objekt zurück
+     */
+    public boolean markAsFavorite(UUID mediaId, UUID userId) {
+        String sql = """
+        INSERT INTO favorites (media_id, user_id)
+        VALUES (?, ?)
+        """;
+
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setObject(1, mediaId);
+            stmt.setObject(2, userId);
+
+            return stmt.executeUpdate() == 1; // true = erfolgreich eingefügt
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
         }
     }
 
+
+    /**
+     * Entfernt ein Favorite
+     */
     public boolean removeFromFavorites(UUID mediaId, UUID currentUserId) {
         String sql = """
             DELETE FROM favorites
             WHERE media_id = ?
-              AND creator_id = ?
+              AND user_id = ?
             """;
 
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setObject(1, mediaId);
             stmt.setObject(2, currentUserId);
+
             return stmt.executeUpdate() > 0;
         } catch (SQLException e) {
             e.printStackTrace();
@@ -60,7 +85,10 @@ public class FavoriteRepository {
         return false;
     }
 
-    public List<UUID> findFavoritesByUser(UUID currentUserId) {
+    /**
+     * Gibt alle Media-IDs zurück, die ein User favorisiert hat
+     */
+    public List<UUID> findFavoritesByUser(UUID userId) {
         List<UUID> mediaIds = new ArrayList<>();
 
         String sql = """
@@ -70,15 +98,13 @@ public class FavoriteRepository {
             """;
 
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
-
-            stmt.setObject(1, currentUserId);
+            stmt.setObject(1, userId);
 
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
                     mediaIds.add(rs.getObject("media_id", UUID.class));
                 }
             }
-
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -86,13 +112,14 @@ public class FavoriteRepository {
         return mediaIds;
     }
 
+    /**
+     * Mapper-Methode
+     */
     private Favorite mapResultSetToFavorite(ResultSet rs) throws SQLException {
         return new Favorite(
                 rs.getObject("id", UUID.class),
                 rs.getObject("media_id", UUID.class),
                 rs.getObject("user_id", UUID.class)
-
         );
     }
-
 }
