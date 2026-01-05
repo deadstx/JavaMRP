@@ -86,5 +86,16 @@ get "$BASE_URL/comments/users"
 
 
 
+# =========================
+# USER PROFILE
+# =========================
+print_step "EIGENES PROFIL ABRUFEN"
+get "$BASE_URL/profile/users"
+
+print_step "BESTIMMTES PROFIL ABRUFEN"
+get "$BASE_URL/profile/users/11111111-1111-1111-1111-111111111111"
+
+
+
 
 

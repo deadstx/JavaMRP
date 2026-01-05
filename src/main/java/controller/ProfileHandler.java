@@ -4,27 +4,24 @@ import com.sun.net.httpserver.HttpExchange;
 import models.User;
 import server.ResponseGenerator;
 import service.AuthService;
-import service.MediaService;
 import service.ProfileService;
 
-
-import controller.AuthenticatedHandler;
-
 import java.io.IOException;
-import java.sql.SQLException;
-import java.util.List;
 import java.util.UUID;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class ProfileHandler extends AuthenticatedHandler {
 
     private final ResponseGenerator responseGenerator = new ResponseGenerator();
-    private final ProfileService service;
+    private final ProfileService profileService;
 
-    public ProfileHandler(AuthService authService, ProfileService service) {
+    private static final Pattern USER_ID_PATTERN = Pattern.compile("/profile/users/([0-9a-fA-F\\-]{36})");
+
+    public ProfileHandler(AuthService authService, ProfileService profileService) {
         super(authService);
-        this.service = service;
+        this.profileService = profileService;
     }
-
 
     @Override
     public void handle(HttpExchange exchange) throws IOException {
@@ -41,25 +38,42 @@ public class ProfileHandler extends AuthenticatedHandler {
     private void handleGet(HttpExchange exchange) throws IOException {
         String path = exchange.getRequestURI().getPath();
 
-        if (!"/profile".equals(path)) {
-            responseGenerator.sendJsonResponse(exchange, 404, "Not Found");
-            return;
-        }
-
-        try {
+        UUID userId = extractUserIdFromPath(path);
+        if (userId != null) {
+            sendUserProfile(exchange, userId);
+        } else if (path.equals("/profile/users")) {
+            // aktueller Benutzer
             UUID currentUserId = getCurrentUserId(exchange);
-            User userData = service.getProfileData(currentUserId);
+            sendUserProfile(exchange, currentUserId);
+        } else {
+            responseGenerator.sendJsonResponse(exchange, 404, "Endpoint not found");
+        }
+    }
 
-            if (userData == null) {
-                responseGenerator.sendJsonResponse(exchange, 404, "User not found");
-                return;
+    private UUID extractUserIdFromPath(String path) {
+        Matcher matcher = USER_ID_PATTERN.matcher(path);
+        if (matcher.matches()) {
+            try {
+                return UUID.fromString(matcher.group(1));
+            } catch (IllegalArgumentException ignored) {
+                // ungültige UUID wird unten behandelt
             }
+        }
+        return null;
+    }
 
-            responseGenerator.sendJsonResponse(exchange, 200, userData);
-
+    private void sendUserProfile(HttpExchange exchange, UUID userId) throws IOException {
+        try {
+            User user = profileService.getProfileData(userId);
+            if (user == null) {
+                responseGenerator.sendJsonResponse(exchange, 404, "User not found");
+            } else {
+                responseGenerator.sendJsonResponse(exchange, 200, user);
+            }
         } catch (IllegalArgumentException e) {
             responseGenerator.sendJsonResponse(exchange, 400, "Invalid user id");
         } catch (Exception e) {
+            e.printStackTrace();
             responseGenerator.sendJsonResponse(exchange, 500, "Internal server error");
         }
     }
