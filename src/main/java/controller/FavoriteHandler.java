@@ -49,9 +49,9 @@ public class FavoriteHandler extends AuthenticatedHandler {
 
     private void handleGet(HttpExchange exchange) throws IOException {
         String path = exchange.getRequestURI().getPath();
-
+        System.out.println("PATH:" +path);
         /*
-         * GET /favorites/users/{userId}
+         * GET /favorites/users
          */
         if (path.matches("/favorites/users")) {
             UUID currentUser = getCurrentUserId(exchange);

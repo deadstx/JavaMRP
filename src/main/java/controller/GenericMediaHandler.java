@@ -141,12 +141,7 @@ public class GenericMediaHandler<T extends Media> extends AuthenticatedHandler {
             sendJson(exchange, 200, result);
 
 
-        } else {
-            responseGenerator.sendJsonError(exchange, 400, "Invalid Path");
         }
-
-
-
 
         // ========================
         // GET /media/{type}

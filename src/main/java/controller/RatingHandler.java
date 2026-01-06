@@ -64,6 +64,20 @@ public class RatingHandler extends AuthenticatedHandler {
             return;
         }
 
+        if (path.matches("/ratings/users")) {
+            UUID currentUserId = getCurrentUserId(exchange);
+
+            List<Rating> ratings = service.getRatingsByUser(currentUserId);
+
+            responseGenerator.sendJsonResponse(
+                    exchange,
+                    200,
+                    mapper.writeValueAsString(ratings)
+            );
+            return;
+        }
+
+
         /*
          * GET /ratings/users/{userId}
          */
