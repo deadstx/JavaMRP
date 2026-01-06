@@ -36,6 +36,10 @@ public class RatingService {
         return ratingRepository.findByMediaId(mediaId);
     }
 
+    public int getRatingCountByUser(UUID userId) {
+        return ratingRepository.findRatingCountByUser(userId);
+    }
+
     /* ---------------------------------------------------
      * DELETE
      * --------------------------------------------------- */

@@ -85,6 +85,32 @@ public class FavoriteRepository {
         return false;
     }
 
+    public String getFavoriteGenre(UUID userId) {
+        String sql = """
+        SELECT genres
+        FROM media
+        WHERE creator_id = ?
+        GROUP BY genres
+        ORDER BY COUNT(*) DESC
+        LIMIT 1
+        """;
+
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setObject(1, userId);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getString("genres");
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Failed to fetch favorite genre for user " + userId, e);
+        }
+
+        return null; // User hat keine Ratings
+    }
+
+
     /**
      * Gibt alle Media-IDs zurück, die ein User favorisiert hat
      */

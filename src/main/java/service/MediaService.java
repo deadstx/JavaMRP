@@ -7,6 +7,7 @@ import repository.MediaRepository;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 public class MediaService {
 
@@ -30,7 +31,6 @@ public class MediaService {
         return repo.findAll(mediaType);
     }
 
-    // Komfort-Methode ohne Filter
     public List<Media> findAll() {
         return repo.findAll(Optional.empty());
     }
@@ -39,26 +39,15 @@ public class MediaService {
     // CREATE / UPDATE
     // ========================
     public boolean save(Media media, UUID currentUserId) {
-        // UPDATE
         if (media.getId() != null) {
             Optional<Media> existingOpt = repo.findById(media.getId());
-            // Medium existiert nicht
-            if (existingOpt.isEmpty()) {
-                return false;
-            }
+            if (existingOpt.isEmpty()) return false;
 
             Media existing = existingOpt.get();
+            if (!existing.getCreatorId().equals(currentUserId)) return false;
 
-            // Kein Zugriff
-            if (!existing.getCreatorId().equals(currentUserId)) {
-                return false;
-            }
-
-            // Creator darf NICHT überschrieben werden
             media.setCreatorId(existing.getCreatorId());
-
         } else {
-            // CREATE
             media.setCreatorId(currentUserId);
         }
 
@@ -66,8 +55,25 @@ public class MediaService {
         return true;
     }
 
+    // ========================
+    // FILTER METHODS
+    // ========================
 
+    public List<Media> filterMediaByGenre(String genre) {
+        return null;
+    }
 
+    public List<Media> filterMediaByReleaseYear(int year) {
+        return repo.findAll(Optional.empty()).stream()
+                .filter(media -> media.getReleaseYear() == year)
+                .collect(Collectors.toList());
+    }
+
+    public List<Media> filterMediaByAgeRestriction(int age) {
+        return repo.findAll(Optional.empty()).stream()
+                .filter(media -> media.getAgeRestriction() <= age)
+                .collect(Collectors.toList());
+    }
 
     // ========================
     // DELETE

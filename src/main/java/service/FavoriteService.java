@@ -31,6 +31,10 @@ public class FavoriteService {
        return favoriteRepo.removeFromFavorites(mediaId, currentUserId);
     }
 
+    public String getFavoriteGenre(UUID userId) {
+        return favoriteRepo.getFavoriteGenre(userId);
+    }
+
     public boolean exists(UUID mediaId, UUID currentUserId) {
         return favoriteRepo.checkIfExists(mediaId, currentUserId);
     }

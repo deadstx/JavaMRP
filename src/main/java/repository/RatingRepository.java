@@ -91,6 +91,31 @@ public class RatingRepository {
         return ratings;
     }
 
+    // ANZAHL DER RATINGS EINES USERS (FÜR STATISTIKEN)
+
+    public int findRatingCountByUser(UUID userId) {
+        String sql = """
+        SELECT COUNT(*)
+        FROM ratings
+        WHERE user_id = ?
+        """;
+
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setObject(1, userId);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1);
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Failed to count ratings for user " + userId, e);
+        }
+
+        return 0;
+    }
+
+
     // ALLE RATINGS ZU EINEM MEDIA EINTRAG
     public List<Rating> findByMediaId(UUID mediaId) {
         String sql = """

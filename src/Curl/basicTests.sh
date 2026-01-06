@@ -75,6 +75,15 @@ print_step "ALLE SERIEN"
 get "$BASE_URL/media/series"
 
 
+print_step "FILTERN NACH AGE Restriction"
+get "$BASE_URL/media/filter/age_restriction/16"
+
+print_step "FILTERN NACH ERSCHEINUNGSJAHr"
+get "$BASE_URL/media/filter/release_year/2008"
+
+
+
+
 # =========================
 # COMMENTS
 # =========================

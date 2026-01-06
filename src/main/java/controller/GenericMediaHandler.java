@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sun.net.httpserver.HttpExchange;
 import models.Media;
 import models.MediaType;
+import models.MediaFilter;
 import server.ResponseGenerator;
 import service.AuthService;
 import service.MediaService;
@@ -93,6 +94,59 @@ public class GenericMediaHandler<T extends Media> extends AuthenticatedHandler {
             sendJson(exchange, 200, items);
             return;
         }
+
+        // ========================
+        // GET /media/filter/{filter}
+        // Filterparameter: genres, release_year, age_restriction
+        // ========================
+
+        // Angenommen: parts = requestPath.split("/")
+        if (parts.length == 5 && "filter".equals(parts[2])) {
+            String filterStr = parts[3]; // filtername
+            String value = parts[4];     // filter value
+
+            MediaFilter filter = MediaFilter.fromString(filterStr);
+
+            if (filter == null) {
+                responseGenerator.sendJsonError(exchange, 404, "Filter ungültig");
+                return;
+            }
+
+            List<Media> result = List.of();
+
+            switch (filter) {
+                case GENRE -> result = service.filterMediaByGenre(value);
+                case RELEASE_YEAR -> {
+                    int year;
+                    try {
+                        year = Integer.parseInt(value);
+                    } catch (NumberFormatException e) {
+                        responseGenerator.sendJsonError(exchange, 400, "Must be year");
+                        return;
+                    }
+                    result = service.filterMediaByReleaseYear(year);
+                }
+                case AGE_RESTRICTION -> {
+                    int age;
+                    try {
+                        age = Integer.parseInt(value);
+                    } catch (NumberFormatException e) {
+                        responseGenerator.sendJsonError(exchange, 400, "Must be a number");
+                        return;
+                    }
+                    result = service.filterMediaByAgeRestriction(age);
+                }
+            }
+
+            sendJson(exchange, 200, result);
+
+
+        } else {
+            responseGenerator.sendJsonError(exchange, 400, "Invalid Path");
+        }
+
+
+
 
         // ========================
         // GET /media/{type}

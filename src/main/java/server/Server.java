@@ -42,10 +42,10 @@ public class Server {
             // ========================
             AuthService authService = new AuthService(userRepository);
             RegisterService registerService = new RegisterService(registerRepository);
-            ProfileService profileService = new ProfileService(profileRepository);
             RatingService ratingService = new RatingService(ratingRepository);
-            MediaService mediaService = new MediaService(mediaRepository);
             FavoriteService favoriteService = new FavoriteService(favoriteRepository, mediaRepository);
+            ProfileService profileService = new ProfileService(profileRepository, ratingService, favoriteService);
+            MediaService mediaService = new MediaService(mediaRepository);
             CommentService commentService = new CommentService(commentRepository);
 
             // ========================

@@ -1,22 +1,36 @@
 package service;
 
+import dto.UserProfileDto;
 import models.User;
 import repository.ProfileRepository;
-import repository.RegisterRepository;
 
-import java.sql.SQLException;
 import java.util.UUID;
 
 public class ProfileService {
 
-    private final ProfileRepository profileRepo;
+    private final ProfileRepository profileRepository;
+    private final RatingService ratingService;
+    private final FavoriteService favoriteService;
 
-    public ProfileService(ProfileRepository getUserData) {
-        this.profileRepo = getUserData;
+    public ProfileService(ProfileRepository profileRepository,
+                          RatingService ratingService, FavoriteService favoriteService) {
+        this.profileRepository = profileRepository;
+        this.ratingService = ratingService;
+        this.favoriteService = favoriteService;
     }
 
-    // Benutzer registrieren
-    public User getProfileData(UUID currentUserId) throws SQLException {
-        return (profileRepo.fetchUserProfile(currentUserId));
+    public UserProfileDto getProfileData(UUID userId) {
+        User user = profileRepository.fetchUserProfile(userId);
+        if (user == null) return null;
+
+        int ratingCount = ratingService.getRatingCountByUser(userId);
+        String favoriteGenre = favoriteService.getFavoriteGenre(userId);
+
+        return new UserProfileDto(
+                user.getId(),
+                user.getUsername(),
+                ratingCount,
+                favoriteGenre
+        );
     }
 }
