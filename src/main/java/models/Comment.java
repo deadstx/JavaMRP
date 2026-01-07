@@ -9,6 +9,8 @@ public class Comment {
     private UUID mediaId;
     private String comment_text;
 
+    public Comment(){} // Muss für Jackson
+
     public Comment(
             UUID id,
             UUID userId,

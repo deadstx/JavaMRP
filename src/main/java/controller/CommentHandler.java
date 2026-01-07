@@ -36,7 +36,7 @@ public class CommentHandler extends AuthenticatedHandler {
             case "GET" -> handleGet(exchange);
             case "POST" -> handlePost(exchange);
             case "DELETE" -> handleDelete(exchange);
-            case "PUT" -> handleUpdate(exchange);
+            case "PUT" -> handleConfirm(exchange);
             default -> responseGenerator.sendJsonError(exchange, 405, "Method not allowed");
         }
     }
@@ -95,13 +95,23 @@ public class CommentHandler extends AuthenticatedHandler {
         UUID mediaId = UUID.fromString(path.substring(path.lastIndexOf("/") + 1));
         UUID userId = getCurrentUserId(exchange);
 
-        // Body lesen
         String body = new String(exchange.getRequestBody().readAllBytes());
-        Comment comment = mapper.readValue(body, Comment.class);
+
+        Comment comment;
+        try {
+            comment = mapper.readValue(body, Comment.class);
+        } catch (Exception e) {
+            e.printStackTrace();
+            responseGenerator.sendJsonError(exchange, 400, "Ungültiges JSON");
+            return;
+        }
 
         // Sichere Felder serverseitig setzen
         comment.setUserId(userId);
         comment.setMediaId(mediaId);
+
+        System.out.println(userId);
+        System.out.println(mediaId);
 
         // Existenz prüfen: User darf nur 1 Kommentar pro Media haben
         if (service.commentExistsByUserAndMedia(userId, mediaId)) {
@@ -113,6 +123,7 @@ public class CommentHandler extends AuthenticatedHandler {
             return;
         }
 
+        System.out.println("DATA" + mediaId + userId + comment.getComment_text());
         boolean success = service.addNewComment(mediaId, userId, comment.getComment_text());
 
         if (success) {
@@ -168,7 +179,7 @@ public class CommentHandler extends AuthenticatedHandler {
      * PUT
      * --------------------------------------------------- */
 
-    private void handleUpdate(HttpExchange exchange) throws IOException {
+    private void handleConfirm(HttpExchange exchange) throws IOException {
         String path = exchange.getRequestURI().getPath();
 
         // PUT /comments/media/{mediaId}
@@ -195,6 +206,6 @@ public class CommentHandler extends AuthenticatedHandler {
             return;
         }
 
-        responseGenerator.sendJsonError(exchange, 404, "Pfad ungültig");
+        responseGenerator.sendJsonError(exchange, 404, "Pfad ungültig! Versuche /comments/media/{media_id}");
     }
 }
