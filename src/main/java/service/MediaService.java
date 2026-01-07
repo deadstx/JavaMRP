@@ -1,5 +1,6 @@
 package service;
 
+import dto.MediaWithRatingDto;
 import models.Media;
 import models.MediaType;
 import repository.MediaRepository;
@@ -30,6 +31,12 @@ public class MediaService {
     public List<Media> findAll(Optional<MediaType> mediaType) {
         return repo.findAll(mediaType);
     }
+
+    public List<MediaWithRatingDto> findAllWithRating() {
+        System.out.println("SERVICE: findAllWithRating()");
+        return repo.findAllWithRating();
+    }
+
 
     public List<Media> findAll() {
         return repo.findAll(Optional.empty());

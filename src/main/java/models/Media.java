@@ -14,7 +14,6 @@ public class Media {
     private int age_restriction;
     private UUID creator_id;
     private String created_at;
-    private float rating;
 
     // ----- Konstruktoren -----
 
@@ -115,11 +114,4 @@ public class Media {
         this.created_at = created_at;
     }
 
-    public float getRating() {
-        return rating;
-    }
-
-    public void setRating(float rating) {
-        this.rating = rating;
-    }
 }

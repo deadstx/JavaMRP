@@ -2,6 +2,7 @@ package controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sun.net.httpserver.HttpExchange;
+import dto.MediaWithRatingDto;
 import models.Media;
 import models.MediaType;
 import models.MediaFilter;
@@ -61,7 +62,7 @@ public class GenericMediaHandler<T extends Media> extends AuthenticatedHandler {
         String[] parts = path.split("/");
 
         // ========================
-        // GET /media/{uuid}
+        // GET /media/{media_id} -> EIN SPEZIFISCHES
         // ========================
         if (path.matches("/" + basePath + "/" + UUID_REGEX)) {
             UUID id = UUID.fromString(parts[2]);
@@ -87,10 +88,10 @@ public class GenericMediaHandler<T extends Media> extends AuthenticatedHandler {
         }
 
         // ========================
-        // GET /media
+        // GET /media -> ALLE EINTRÄGE
         // ========================
         if (parts.length == 2) { // ["", "media"]
-            List<Media> items = service.findAll();
+            List<MediaWithRatingDto> items = service.findAllWithRating();
             sendJson(exchange, 200, items);
             return;
         }

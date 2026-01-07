@@ -1,5 +1,6 @@
 package repository;
 
+import dto.MediaWithRatingDto;
 import models.Media;
 import models.MediaType;
 
@@ -46,6 +47,46 @@ public class MediaRepository {
 
         return mediaList;
     }
+
+    public List<MediaWithRatingDto> findAllWithRating() {
+        List<MediaWithRatingDto> result = new ArrayList<>();
+
+        String sql = """
+        SELECT
+            m.id, m.title, m.description, m.director, m.release_year,
+            m.genres, m.age_restriction, m.creator_id, m.created_at, m.media_type,
+            COALESCE(AVG(r.stars), 0) AS avg_rating,
+            COUNT(r.id) AS rating_count
+        FROM media m
+        LEFT JOIN ratings r ON r.media_id = m.id
+        GROUP BY
+            m.id, m.title, m.description, m.director,
+            m.release_year, m.genres, m.age_restriction,
+            m.creator_id, m.created_at, m.media_type
+        """;
+
+        try (PreparedStatement stmt = conn.prepareStatement(sql);
+             ResultSet rs = stmt.executeQuery()) {
+
+            while (rs.next()) {
+                Media media = mapResultSetToMedia(rs);
+
+                MediaWithRatingDto dto = new MediaWithRatingDto();
+                dto.setMedia(media);
+                dto.setAverageRating(rs.getDouble("avg_rating"));
+                dto.setRatingCount(rs.getInt("rating_count"));
+
+                result.add(dto);
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return result;
+    }
+
+
 
     // ========================
     // FIND BY ID
@@ -216,7 +257,7 @@ public class MediaRepository {
         media.setId((UUID) rs.getObject("id"));
         media.setTitle(rs.getString("title"));
         media.setDescription(rs.getString("description"));
-        media.setDescription(rs.getString("director"));
+        media.setDirector(rs.getString("director"));
         media.setReleaseYear(rs.getInt("release_year"));
         media.setGenre(rs.getString("genres"));
         media.setAgeRestriction(rs.getInt("age_restriction"));

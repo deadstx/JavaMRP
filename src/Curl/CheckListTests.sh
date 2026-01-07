@@ -85,7 +85,7 @@ print_step "Alle Media Einträge abrufen (Filme, Serien und Spiele)"
 get "$BASE_URL/media"
 
 print_step "Einen SPEZIFISCHEN Media Eintrag abrufen"
-get "$BASE_URL/media/$MEDIA_ID_2"
+get "$BASE_URL/media/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"
 
 print_step "ALLE FILME"
 get "$BASE_URL/media/movies"
