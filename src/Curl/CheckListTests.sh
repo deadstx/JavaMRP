@@ -176,6 +176,16 @@ print_step "Einen Media Eintrag aus den Favoriten entfernen"
 delete "$BASE_URL/favorites/media/e75e9532-f21c-47ae-92d7-b508cd785247"
 
 
+# =========================
+# LEADERBOARD TESTS
+# =========================
+
+print_step "Top 5 Leaderboard anzeigen "
+get "$BASE_URL/leaderboard/5"
+
+
+
+
 
 
 

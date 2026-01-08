@@ -1,5 +1,6 @@
 package service;
 
+import dto.LeaderboardUserDto;
 import models.Rating;
 import repository.RatingRepository;
 
@@ -21,25 +22,25 @@ public class RatingService {
      * --------------------------------------------------- */
 
     public Rating getRatingById(UUID ratingId) {
-        System.out.println("getRatingById Service");
-        System.out.println("Rating ID im Service: " + ratingId);
         return ratingRepository.findById(ratingId);
     }
 
     public List<Rating> getRatingsByUser(UUID userId) {
-        System.out.println("getRatingByUser Service");
         return ratingRepository.findByUserId(userId);
     }
 
     public List<Rating> getRatingsByMedia(UUID mediaId) {
-        System.out.println("getRatingByMedia Service");
         return ratingRepository.findByMediaId(mediaId);
     }
 
     public List<Rating> getRatingHistory(UUID currentUserId, int ratingCount) {
-        System.out.println("RatingHistory Service");
         return ratingRepository.findRatingHistory(currentUserId, ratingCount);
     }
+
+    public List<LeaderboardUserDto> getTopUserIdList(int userCount) {
+        return ratingRepository.findTopUserList(userCount);
+    }
+
 
 
 

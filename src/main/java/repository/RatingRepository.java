@@ -1,13 +1,12 @@
 package repository;
 
+import dto.LeaderboardUserDto;
 import models.Rating;
 
-import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -90,6 +89,37 @@ public class RatingRepository {
 
         return ratings;
     }
+
+    public List<LeaderboardUserDto> findTopUserList(int userCount) {
+        String sql = """
+        SELECT user_id, COUNT(*) AS cnt
+        FROM ratings
+        GROUP BY user_id
+        ORDER BY cnt DESC
+        LIMIT ?
+    """;
+
+        List<LeaderboardUserDto> topUsers = new ArrayList<>();
+
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, userCount);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    UUID userId = rs.getObject("user_id", java.util.UUID.class);
+                    int ratingCount = rs.getInt("cnt");
+                    topUsers.add(new LeaderboardUserDto(userId, ratingCount));
+                }
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return topUsers;
+    }
+
+
 
 
 

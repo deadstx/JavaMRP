@@ -45,6 +45,7 @@ public class Server {
             RatingService ratingService = new RatingService(ratingRepository);
             FavoriteService favoriteService = new FavoriteService(favoriteRepository, mediaRepository);
             ProfileService profileService = new ProfileService(profileRepository, ratingService, favoriteService);
+            LeaderboardService leaderboardService = new LeaderboardService(ratingService, userRepository);
             MediaService mediaService = new MediaService(mediaRepository);
             CommentService commentService = new CommentService(commentRepository);
 
@@ -71,6 +72,8 @@ public class Server {
             server.createContext("/profile/users", new ProfileHandler(authService, profileService));
            // server.createContext("users/recommendations", new RecommendationHandler(authService));
 
+            // LEADERBOARD
+            server.createContext("/leaderboard", new LeaderboardHandler(authService, leaderboardService));
 
             // RATINGS
             server.createContext("/ratings", new RatingHandler(authService, ratingService));
