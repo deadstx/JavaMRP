@@ -64,6 +64,34 @@ public class RatingRepository {
         return null;
     }
 
+    public List<Rating> findRatingHistory(UUID currentUserId, int ratingCount) {
+        String sql = """
+        SELECT *
+        FROM ratings
+        WHERE user_id = ?
+        ORDER BY created_at DESC
+        LIMIT ?
+        """;
+
+        List<Rating> ratings = new ArrayList<>();
+
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setObject(1, currentUserId);
+            stmt.setObject(2, ratingCount);
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                ratings.add(fromResultSet(rs));
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return ratings;
+    }
+
+
 
 
     // ALLE RATINGS EINES USERS

@@ -105,17 +105,6 @@ get "$BASE_URL/media/filter/release_year/2008"
 
 
 # =========================
-# KOMMENTAR TESTS
-# =========================
-print_step "Alle Kommentare zu einem Media Eintrag abrufen (Nur bestätigte werden angezeigt)"
-get "$BASE_URL/comments/media/c56a6273-fc47-42e9-b72e-d54f90c5e88a"
-
-print_step "Alle Kommentare, die man selbst geschrieben hat abrufen (Auch nicht bestätigte werden angezeigt) "
-get "$BASE_URL/comments/users"
-
-
-
-# =========================
 # BENUTZERPROFIL TESTS
 # =========================
 print_step "Eigenes Profil abrufen"
@@ -142,6 +131,9 @@ get "$BASE_URL/ratings/users"
 
 print_step "Alle Bewertungen abrufen, die ein bestimmter User abgegeben hat"
 get "$BASE_URL/ratings/users/130695af-3d51-45c4-b889-c1f1865afdae"
+
+print_step "Letzten X Bewertungen abrufen, die man selbst abgegeben hat"
+get "$BASE_URL/ratings/users/history/2"
 
 print_step "Eine Bewertung löschen"
 delete "$BASE_URL/ratings/media/ac43d4c1-d0ea-4458-9b90-8968edf90e80"

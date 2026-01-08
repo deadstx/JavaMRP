@@ -2,6 +2,7 @@ package controller;
 
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
+import exception.NotFoundException;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -13,7 +14,7 @@ public class LandingPage implements HttpHandler {
     public void handle(HttpExchange exchange) throws IOException {
 
         if(!Objects.equals(exchange.getRequestMethod(), "GET")) {
-            exchange.sendResponseHeaders(405, -1); // Method Not Allowed
+            throw new NotFoundException(); // Method Not Allowed
         } else {
             handleGet(exchange);
         }

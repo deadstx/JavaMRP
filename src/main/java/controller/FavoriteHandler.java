@@ -2,14 +2,13 @@ package controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sun.net.httpserver.HttpExchange;
-import models.Favorite;
+import exception.*;
 import models.Media;
 import server.ResponseGenerator;
 import service.AuthService;
 import service.FavoriteService;
 
 import java.io.IOException;
-import java.sql.SQLException;
 import java.util.List;
 import java.util.UUID;
 
@@ -32,31 +31,39 @@ public class FavoriteHandler extends AuthenticatedHandler {
 
     @Override
     public void handle(HttpExchange exchange) throws IOException {
-        if (!isAuthenticated(exchange)) return;
+        try {
+            // Auth prüfen
+            isAuthenticated(exchange);
 
-        switch (exchange.getRequestMethod()) {
-            case "GET" -> handleGet(exchange);
-            case "POST" -> handlePost(exchange);
-            case "DELETE" -> handleDelete(exchange);
-          //  case "PUT" -> handleUpdate(exchange);
-            default -> responseGenerator.sendJsonError(exchange, 405, "Method not allowed");
+            switch (exchange.getRequestMethod()) {
+                case "GET" -> handleGet(exchange);
+                case "POST" -> handlePost(exchange);
+                case "DELETE" -> handleDelete(exchange);
+                default -> throw new NotFoundException();
+            }
+
+        } catch (ApiException ex) {
+            responseGenerator.sendJsonError(exchange, ex);
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            responseGenerator.sendJsonError(exchange, new ServerErrorException());
         }
     }
 
     /* ---------------------------------------------------
      * GET
      * --------------------------------------------------- */
-
-    private void handleGet(HttpExchange exchange) throws IOException {
+    private void handleGet(HttpExchange exchange) throws IOException, ApiException {
         String path = exchange.getRequestURI().getPath();
-        System.out.println("PATH:" +path);
+
         /*
          * GET /favorites/users
          */
         if (path.matches("/favorites/users")) {
-            UUID currentUser = getCurrentUserId(exchange);
+            UUID currentUserId = getCurrentUserId(exchange);
 
-            List<Media> favorites = service.getUserFavorites(currentUser);
+            List<Media> favorites = service.getUserFavorites(currentUserId);
 
             responseGenerator.sendJsonResponse(
                     exchange,
@@ -66,71 +73,70 @@ public class FavoriteHandler extends AuthenticatedHandler {
             return;
         }
 
-        responseGenerator.sendJsonError(exchange, 404, "Pfad ungültig");
+        throw new NotFoundException();
     }
 
-
-    private void handlePost(HttpExchange exchange) throws IOException {
+    /* ---------------------------------------------------
+     * POST
+     * --------------------------------------------------- */
+    private void handlePost(HttpExchange exchange) throws IOException, ApiException {
         String path = exchange.getRequestURI().getPath();
-        String[] parts = path.split("/");
 
-        UUID currentUserId = getCurrentUserId(exchange);
-
-        // ========================
-        // GET /media/{uuid}
-        // ========================
-        if (path.matches("/favorites/media/" + UUID_REGEX)) {
-            UUID mediaId = UUID.fromString(parts[3]);
-            System.out.println("ID " + mediaId);
-
-            if(service.exists(mediaId, currentUserId)) {
-                responseGenerator.sendJsonError(exchange, 400, "Bereits als Favorit markiert");
-                return;
-            }
-
-            if(service.markAsFavorite(mediaId, currentUserId)) {
-                responseGenerator.sendJsonResponse(
-                        exchange,
-                        200,
-                        "Als Favorit hinzugefügt"
-                );
-                return;
-            }
-
-            responseGenerator.sendJsonError(exchange, 500, "Server Error");
-
+        /*
+         * POST /favorites/media/{mediaId}
+         */
+        if (!path.matches("/favorites/media/" + UUID_REGEX)) {
+            throw new NotFoundException();
         }
 
-        responseGenerator.sendJsonError(exchange, 404, "Pfad ungültig");
+        UUID mediaId = UUID.fromString(path.substring(path.lastIndexOf("/") + 1));
+        UUID userId = getCurrentUserId(exchange);
+
+        if (service.exists(mediaId, userId)) {
+            throw new ConflictException(); // bereits Favorit
+        }
+
+        boolean success = service.markAsFavorite(mediaId, userId);
+        if (success) {
+            responseGenerator.sendJsonResponse(
+                    exchange,
+                    200,
+                    "Als Favorit hinzugefügt"
+            );
+        } else {
+            throw new ServerErrorException();
+        }
     }
 
-
-    private void handleDelete(HttpExchange exchange) throws IOException{
+    /* ---------------------------------------------------
+     * DELETE
+     * --------------------------------------------------- */
+    private void handleDelete(HttpExchange exchange) throws IOException, ApiException {
         String path = exchange.getRequestURI().getPath();
-        String[] parts = path.split("/");
 
-        UUID currentUserId = getCurrentUserId(exchange);
-
-        if(path.matches("/favorites/media/" + UUID_REGEX)) {
-            UUID mediaId = UUID.fromString(parts[3]);
-            System.out.println("ID " + mediaId);
-
-            if(service.exists(mediaId, currentUserId)) {
-                if(service.removeFromFavorites(mediaId, currentUserId)) {
-                    responseGenerator.sendJsonResponse(
-                            exchange,
-                            200,
-                            "Aus Favoriten entfernt"
-                    );
-                    return;
-                }
-                responseGenerator.sendJsonError(exchange, 500, "Server Error");
-            }
-            responseGenerator.sendJsonError(exchange, 400, "Medium ist kein Favorit");
-            return;
+        /*
+         * DELETE /favorites/media/{mediaId}
+         */
+        if (!path.matches("/favorites/media/" + UUID_REGEX)) {
+            throw new NotFoundException();
         }
 
+        UUID mediaId = UUID.fromString(path.substring(path.lastIndexOf("/") + 1));
+        UUID userId = getCurrentUserId(exchange);
 
-        responseGenerator.sendJsonError(exchange, 404, "Pfad ungültig");
+        if (!service.exists(mediaId, userId)) {
+            throw new BadRequestException(); // kein Favorit
+        }
+
+        boolean success = service.removeFromFavorites(mediaId, userId);
+        if (success) {
+            responseGenerator.sendJsonResponse(
+                    exchange,
+                    200,
+                    "Aus Favoriten entfernt"
+            );
+        } else {
+            throw new ServerErrorException();
+        }
     }
 }

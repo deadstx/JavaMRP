@@ -2,6 +2,7 @@ package controller;
 
 import com.sun.net.httpserver.HttpExchange;
 import dto.UserProfileDto;
+import exception.*;
 import server.ResponseGenerator;
 import service.AuthService;
 import service.ProfileService;
@@ -26,42 +27,47 @@ public class ProfileHandler extends AuthenticatedHandler {
 
     @Override
     public void handle(HttpExchange exchange) throws IOException {
-        if (!isAuthenticated(exchange)) {
-            return;
-        }
+        try {
+            isAuthenticated(exchange);
 
-        switch (exchange.getRequestMethod()) {
-            case "GET" -> handleGet(exchange);
-            default -> responseGenerator.sendJsonResponse(
-                    exchange,
-                    405,
-                    "Method not allowed"
-            );
+            switch (exchange.getRequestMethod()) {
+                case "GET" -> handleGet(exchange);
+                default -> throw new NotFoundException();
+            }
+
+        } catch (ApiException ex) {
+            responseGenerator.sendJsonError(exchange, ex);
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            responseGenerator.sendJsonError(exchange, new ServerErrorException());
         }
     }
 
-    private void handleGet(HttpExchange exchange) throws IOException {
+    /* ---------------------------------------------------
+     * GET
+     * --------------------------------------------------- */
+    private void handleGet(HttpExchange exchange) throws IOException, ApiException {
         String path = exchange.getRequestURI().getPath();
 
+        // /profile/users/{uuid}
         UUID userId = extractUserIdFromPath(path);
-
         if (userId != null) {
-            // /profile/users/{uuid}
             sendUserProfile(exchange, userId);
             return;
         }
 
+        // /profile/users  → aktueller User
         if ("/profile/users".equals(path)) {
-            // /profile/users → aktueller Benutzer
             UUID currentUserId = getCurrentUserId(exchange);
             sendUserProfile(exchange, currentUserId);
             return;
         }
 
-        responseGenerator.sendJsonResponse(exchange, 404, "Endpoint not found");
+        throw new NotFoundException();
     }
 
-    private UUID extractUserIdFromPath(String path) {
+    private UUID extractUserIdFromPath(String path) throws BadRequestException {
         Matcher matcher = USER_ID_PATTERN.matcher(path);
         if (!matcher.matches()) {
             return null;
@@ -70,26 +76,19 @@ public class ProfileHandler extends AuthenticatedHandler {
         try {
             return UUID.fromString(matcher.group(1));
         } catch (IllegalArgumentException e) {
-            return null;
+            throw new BadRequestException();
         }
     }
 
-    private void sendUserProfile(HttpExchange exchange, UUID userId) throws IOException {
-        try {
-            UserProfileDto profile = profileService.getProfileData(userId);
+    private void sendUserProfile(HttpExchange exchange, UUID userId)
+            throws IOException, ApiException {
 
-            if (profile == null) {
-                responseGenerator.sendJsonResponse(exchange, 404, "User not found");
-                return;
-            }
+        UserProfileDto profile = profileService.getProfileData(userId);
 
-            responseGenerator.sendJsonResponse(exchange, 200, profile);
-
-        } catch (IllegalArgumentException e) {
-            responseGenerator.sendJsonResponse(exchange, 400, "Invalid user id");
-        } catch (Exception e) {
-            e.printStackTrace();
-            responseGenerator.sendJsonResponse(exchange, 500, "Internal server error");
+        if (profile == null) {
+            throw new NotFoundException();
         }
+
+        responseGenerator.sendJsonResponse(exchange, 200, profile);
     }
 }

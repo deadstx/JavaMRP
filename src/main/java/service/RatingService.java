@@ -36,6 +36,13 @@ public class RatingService {
         return ratingRepository.findByMediaId(mediaId);
     }
 
+    public List<Rating> getRatingHistory(UUID currentUserId, int ratingCount) {
+        System.out.println("RatingHistory Service");
+        return ratingRepository.findRatingHistory(currentUserId, ratingCount);
+    }
+
+
+
     public int getRatingCountByUser(UUID userId) {
         return ratingRepository.findRatingCountByUser(userId);
     }
