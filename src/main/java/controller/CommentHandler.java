@@ -48,9 +48,10 @@ public class CommentHandler extends AuthenticatedHandler {
     private void handleGet(HttpExchange exchange) throws IOException {
         String path = exchange.getRequestURI().getPath();
 
-        // GET /comments/media/{mediaId}
+        //comments/media/{mediaId} -> ALLE KOMMENTARE ZU EINEM BESTIMMTEN MEDIUM (NUR BESTÄTIGTE WERDEN GEZEIGT)
         if (path.matches("/comments/media/" + UUID_REGEX)) {
             UUID mediaId = UUID.fromString(path.substring(path.lastIndexOf("/") + 1));
+            System.out.println("MEDIA ID: " + mediaId);
 
             List<Comment> comments = service.getCommentsByMedia(mediaId);
 
@@ -62,7 +63,7 @@ public class CommentHandler extends AuthenticatedHandler {
             return;
         }
 
-        // GET /comments/users/{userId}
+        //comments/users -> ALLE KOMMENTARE DIE MAN SELBST GESCHRIEBEN HAT (AUCH NICHT BESTÄTIGTE WERDEN GEZEIGT)
         if (path.matches("/comments/users")) {
             UUID currentUserId = getCurrentUserId(exchange);
 
@@ -95,51 +96,75 @@ public class CommentHandler extends AuthenticatedHandler {
         UUID mediaId = UUID.fromString(path.substring(path.lastIndexOf("/") + 1));
         UUID userId = getCurrentUserId(exchange);
 
-        String body = new String(exchange.getRequestBody().readAllBytes());
+        // ---------- Body lesen ----------
+        String body = new String(exchange.getRequestBody().readAllBytes()).trim();
+
+        if (body.isEmpty()) {
+            responseGenerator.sendJsonError(
+                    exchange,
+                    400,
+                    "Request-Body darf nicht leer sein"
+            );
+            return;
+        }
 
         Comment comment;
         try {
             comment = mapper.readValue(body, Comment.class);
         } catch (Exception e) {
-            e.printStackTrace();
-            responseGenerator.sendJsonError(exchange, 400, "Ungültiges JSON");
-            return;
-        }
-
-        // Sichere Felder serverseitig setzen
-        comment.setUserId(userId);
-        comment.setMediaId(mediaId);
-
-        System.out.println(userId);
-        System.out.println(mediaId);
-
-        // Existenz prüfen: User darf nur 1 Kommentar pro Media haben
-        if (service.commentExistsByUserAndMedia(userId, mediaId)) {
             responseGenerator.sendJsonError(
                     exchange,
                     400,
+                    "Ungültiges JSON-Format"
+            );
+            return;
+        }
+
+        // ---------- Validierung ----------
+        if (comment.getComment_text() == null || comment.getComment_text().isBlank()) {
+            responseGenerator.sendJsonError(
+                    exchange,
+                    400,
+                    "Kommentartext darf nicht leer sein"
+            );
+            return;
+        }
+
+        // ---------- Serverseitig setzen ----------
+        comment.setUserId(userId);
+        comment.setMediaId(mediaId);
+
+        // ---------- Existenzprüfung ----------
+        if (service.commentExistsByUserAndMedia(userId, mediaId)) {
+            responseGenerator.sendJsonError(
+                    exchange,
+                    409,
                     "Kommentar für dieses Medium existiert bereits"
             );
             return;
         }
 
-        System.out.println("DATA" + mediaId + userId + comment.getComment_text());
-        boolean success = service.addNewComment(mediaId, userId, comment.getComment_text());
+        boolean success = service.addNewComment(
+                mediaId,
+                userId,
+                comment.getComment_text()
+        );
 
         if (success) {
             responseGenerator.sendJsonResponse(
                     exchange,
                     201,
-                    "Kommentar erstellt!"
+                    "Kommentar erstellt"
             );
         } else {
             responseGenerator.sendJsonError(
                     exchange,
-                    400,
+                    500,
                     "Kommentar konnte nicht erstellt werden"
             );
         }
     }
+
 
     /* ---------------------------------------------------
      * DELETE

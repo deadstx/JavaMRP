@@ -107,10 +107,10 @@ get "$BASE_URL/media/filter/release_year/2008"
 # =========================
 # KOMMENTAR TESTS
 # =========================
-print_step "Alle Kommentare zu einem Media Eintrag abrufen"
+print_step "Alle Kommentare zu einem Media Eintrag abrufen (Nur bestätigte werden angezeigt)"
 get "$BASE_URL/comments/media/c56a6273-fc47-42e9-b72e-d54f90c5e88a"
 
-print_step "Alle Kommentare eines Benutzers abrufen"
+print_step "Alle Kommentare, die man selbst geschrieben hat abrufen (Auch nicht bestätigte werden angezeigt) "
 get "$BASE_URL/comments/users"
 
 
@@ -157,14 +157,17 @@ post "$BASE_URL/comments/media/ac43d4c1-d0ea-4458-9b90-8968edf90e80" '{
   "comment_text": "Gefällt mir sehr gut! Spannend bis zum Ende."
 }'
 
-print_step "Einen Kommentar bestätigen"
-post "$BASE_URL/comments/media/ac43d4c1-d0ea-4458-9b90-8968edf90e80"
+print_step "Einen Kommentar bestätigen (DARF NUR DER ERSTELLER DES MEDIUMS"
+put "$BASE_URL/comments/media/ac43d4c1-d0ea-4458-9b90-8968edf90e80"
 
-print_step "Alle Kommentare eines bestimmten Media Eintrages abrufen"
+print_step "Alle Kommentare eines bestimmten Media Eintrages abrufen (NUR BESTÄTIGTE)"
 get "$BASE_URL/comments/media/ac43d4c1-d0ea-4458-9b90-8968edf90e80"
 
-print_step "Alle Kommentare abrufen, die man selbst geschrieben hat"
+print_step "Alle Kommentare abrufen, die man selbst geschrieben hat (AUCH UNBESTÄTIGTE)"
 get "$BASE_URL/comments/users"
+
+print_step "Alle Kommentare abrufen, die man selbst geschrieben hat (AUCH UNBESTÄTIGTE)"
+delete "$BASE_URL/comments/media/ac43d4c1-d0ea-4458-9b90-8968edf90e80"
 
 
 # =========================
