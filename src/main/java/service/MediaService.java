@@ -2,6 +2,7 @@ package service;
 
 import dto.MediaWithRatingDto;
 import models.Media;
+import models.MediaFilter;
 import models.MediaType;
 import repository.MediaRepository;
 
@@ -69,22 +70,11 @@ public class MediaService {
     // ========================
     // FILTER METHODS
     // ========================
-
-    public List<Media> filterMediaByGenre(String genre) {
-        return null;
+    public List<Media> filterMedia(MediaFilter filterType, Object value) {
+        return repo.findByFilter(filterType, value);
     }
 
-    public List<Media> filterMediaByReleaseYear(int year) {
-        return repo.findAll(Optional.empty()).stream()
-                .filter(media -> media.getReleaseYear() == year)
-                .collect(Collectors.toList());
-    }
 
-    public List<Media> filterMediaByAgeRestriction(int age) {
-        return repo.findAll(Optional.empty()).stream()
-                .filter(media -> media.getAgeRestriction() <= age)
-                .collect(Collectors.toList());
-    }
 
     // ========================
     // DELETE

@@ -96,24 +96,18 @@ public class GenericMediaHandler<T extends Media> extends AuthenticatedHandler {
                 throw new NotFoundException();
             }
 
-            List<Media> result = switch (filter) {
-                case GENRE -> service.filterMediaByGenre(parts[4]);
-                case RELEASE_YEAR -> {
-                    try {
-                        yield service.filterMediaByReleaseYear(Integer.parseInt(parts[4]));
-                    } catch (NumberFormatException e) {
-                        throw new BadRequestException();
-                    }
-                }
-                case AGE_RESTRICTION -> {
-                    try {
-                        yield service.filterMediaByAgeRestriction(Integer.parseInt(parts[4]));
-                    } catch (NumberFormatException e) {
-                        throw new BadRequestException();
-                    }
-                }
-                case MIN_RATING -> null;
-            };
+            Object filterValue;
+
+            try {
+                filterValue = switch (filter) {
+                    case TITLE, GENRE -> parts[4];
+                    default -> Integer.parseInt(parts[4]);
+                };
+            } catch (NumberFormatException e) {
+                throw new BadRequestException();
+            }
+
+            List<Media> result = service.filterMedia(filter, filterValue);
 
             sendJson(exchange, 200, result);
             return;

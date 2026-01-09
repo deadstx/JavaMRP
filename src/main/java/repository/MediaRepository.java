@@ -1,7 +1,9 @@
 package repository;
 
 import dto.MediaWithRatingDto;
+import exception.NotFoundException;
 import models.Media;
+import models.MediaFilter;
 import models.MediaType;
 
 import java.sql.*;
@@ -48,6 +50,62 @@ public class MediaRepository {
         return mediaList;
     }
 
+    public List<Media> findByFilter(MediaFilter filterType, Object value) {
+        List<Media> mediaList = new ArrayList<>();
+
+        String baseSql = """
+        SELECT m.id, m.title, m.description, m.director, m.release_year, m.genres,
+               m.age_restriction, m.creator_id, m.created_at, m.media_type
+        FROM media m
+        """;
+
+        String whereOrHaving;
+        boolean usesRatingJoin = false;
+
+        switch (filterType) {
+            case TITLE -> whereOrHaving = "WHERE m.title ILIKE ?";
+            case GENRE -> whereOrHaving = "WHERE m.genres ILIKE ?";
+            case RELEASE_YEAR -> whereOrHaving = "WHERE m.release_year = ?";
+            case AGE_RESTRICTION -> whereOrHaving = "WHERE m.age_restriction = ?";
+            case MIN_RATING -> {
+                usesRatingJoin = true;
+                whereOrHaving = """
+                JOIN ratings r ON r.media_id = m.id
+                GROUP BY m.id
+                HAVING AVG(r.stars) >= ?
+                """;
+            }
+            default -> throw new NotFoundException();
+        }
+
+        String sql = usesRatingJoin
+                ? baseSql + whereOrHaving
+                : baseSql + whereOrHaving;
+
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            if (value instanceof String s) {
+                stmt.setString(1, "%" + s + "%");
+            } else if (value instanceof Integer i) {
+                stmt.setInt(1, i);
+            } else {
+                throw new NotFoundException();
+            }
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    mediaList.add(mapResultSetToMedia(rs));
+                }
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return mediaList;
+    }
+
+
     public List<MediaWithRatingDto> findAllWithRating() {
         List<MediaWithRatingDto> result = new ArrayList<>();
 
@@ -85,6 +143,7 @@ public class MediaRepository {
 
         return result;
     }
+
 
     public List<MediaWithRatingDto> findReccommendedMedias(String genre, int recommendationCount) {
         List<MediaWithRatingDto> result = new ArrayList<>();

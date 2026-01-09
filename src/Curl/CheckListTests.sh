@@ -96,13 +96,24 @@ get "$BASE_URL/media/games"
 print_step "ALLE SERIEN"
 get "$BASE_URL/media/series"
 
-print_step "Media Einträge FILTERN nach Altersfreigabe"
-get "$BASE_URL/media/filter/age_restriction/16"
+# =========================
+# MEDIA TESTS (FILTERN)
+# =========================
 
-print_step "Media Einträge FILTERN nach Erscheinungsjahr"
+print_step "Media Einträge FILTERN nach TITEL"
+get "$BASE_URL/media/filter/title/inception"
+
+print_step "Media Einträge FILTERN nach GENRE"
+get "$BASE_URL/media/filter/genre/sci-fi"
+
+print_step "Media Einträge FILTERN nach ERSCHEINUNGSJAHR"
 get "$BASE_URL/media/filter/release_year/2008"
 
+print_step "Media Einträge FILTERN nach ALTERSFREIGABE"
+get "$BASE_URL/media/filter/age_restriction/16"
 
+print_step "Media Einträge FILTERN nach MINDESTE BEWERTUNG"
+get "$BASE_URL/media/filter/min_rating/5"
 
 # =========================
 # BENUTZERPROFIL TESTS
