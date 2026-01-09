@@ -86,6 +86,53 @@ public class MediaRepository {
         return result;
     }
 
+    public List<MediaWithRatingDto> findReccommendedMedias(String genre, int recommendationCount) {
+        List<MediaWithRatingDto> result = new ArrayList<>();
+
+        String sql = """
+        SELECT
+            m.id, m.title, m.description, m.director, m.release_year,
+            m.genres, m.age_restriction, m.creator_id, m.created_at, m.media_type,
+            COALESCE(AVG(r.stars), 0) AS avg_rating, /*OHNE RATING = 0 Sterne */
+            COUNT(r.id) AS rating_count
+        FROM media m
+        LEFT JOIN ratings r ON r.media_id = m.id
+        WHERE m.genres LIKE ?
+        GROUP BY
+            m.id, m.title, m.description, m.director,
+            m.release_year, m.genres, m.age_restriction,
+            m.creator_id, m.created_at, m.media_type
+        ORDER BY avg_rating DESC
+        LIMIT ?
+        """;
+
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setString(1, "%" + genre + "%");
+            stmt.setInt(2, recommendationCount);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    Media media = mapResultSetToMedia(rs);
+
+                    MediaWithRatingDto dto = new MediaWithRatingDto();
+                    dto.setMedia(media);
+                    dto.setAverageRating(rs.getDouble("avg_rating"));
+                    dto.setRatingCount(rs.getInt("rating_count"));
+
+                    result.add(dto);
+                }
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return result;
+    }
+
+
+
 
 
     // ========================

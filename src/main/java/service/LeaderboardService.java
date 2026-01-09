@@ -1,15 +1,10 @@
 package service;
 
 import dto.LeaderboardUserDto;
-import dto.UserProfileDto;
-import models.Comment;
-import models.User;
-import repository.ProfileRepository;
 import repository.UserRepository;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
+
 
 public class LeaderboardService {
 

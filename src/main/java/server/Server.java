@@ -48,6 +48,7 @@ public class Server {
             LeaderboardService leaderboardService = new LeaderboardService(ratingService, userRepository);
             MediaService mediaService = new MediaService(mediaRepository);
             CommentService commentService = new CommentService(commentRepository);
+            RecommendationService recommendationService = new RecommendationService(mediaService, favoriteService);
 
             // ========================
             // HTTP SERVER
@@ -83,6 +84,10 @@ public class Server {
 
             // COMMENTS
             server.createContext("/comments", new CommentHandler(authService, commentService));
+
+            // RECOMMENDATIONS
+            server.createContext("/recommendations", new RecommendationHandler(authService, recommendationService, mediaService));
+
 
             // MEDIA
             server.createContext(

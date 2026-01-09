@@ -37,6 +37,10 @@ public class MediaService {
         return repo.findAllWithRating();
     }
 
+    public List<MediaWithRatingDto> findReccommendedMedias(String favoriteGenre, int recommendationCount) {
+        return repo.findReccommendedMedias(favoriteGenre, recommendationCount);
+    }
+
 
     public List<Media> findAll() {
         return repo.findAll(Optional.empty());

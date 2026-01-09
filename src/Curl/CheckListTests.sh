@@ -184,6 +184,14 @@ print_step "Top 5 Leaderboard anzeigen "
 get "$BASE_URL/leaderboard/5"
 
 
+# =========================
+# EMPFEHLUNGEN TESTS
+# =========================
+
+print_step "Top 3 Empfehlungen (bezogen auf fav Genre) "
+get "$BASE_URL/recommendations/media"
+
+
 
 
 
