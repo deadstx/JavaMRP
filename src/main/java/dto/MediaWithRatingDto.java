@@ -31,4 +31,5 @@ public class MediaWithRatingDto {
     public void setRatingCount(int ratingCount) {
         this.ratingCount = ratingCount;
     }
+
 }

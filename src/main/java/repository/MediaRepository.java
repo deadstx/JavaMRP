@@ -59,31 +59,33 @@ public class MediaRepository {
         FROM media m
         """;
 
-        String whereOrHaving;
-        boolean usesRatingJoin = false;
+        String joinClause = "";
+        String whereClause = "";
+        String groupHavingClause = "";
 
+        // Baue die SQL-Bedingungen basierend auf dem Filter
         switch (filterType) {
-            case TITLE -> whereOrHaving = "WHERE m.title ILIKE ?";
-            case GENRE -> whereOrHaving = "WHERE m.genres ILIKE ?";
-            case RELEASE_YEAR -> whereOrHaving = "WHERE m.release_year = ?";
-            case AGE_RESTRICTION -> whereOrHaving = "WHERE m.age_restriction = ?";
+            case TITLE -> whereClause = "WHERE m.title ILIKE ?";
+            case GENRE -> whereClause = "WHERE m.genres ILIKE ?";
+            case RELEASE_YEAR -> whereClause = "WHERE m.release_year = ?";
+            case AGE_RESTRICTION -> whereClause = "WHERE m.age_restriction = ?";
             case MIN_RATING -> {
-                usesRatingJoin = true;
-                whereOrHaving = """
-                JOIN ratings r ON r.media_id = m.id
-                GROUP BY m.id
-                HAVING AVG(r.stars) >= ?
-                """;
+                joinClause = "JOIN ratings r ON r.media_id = m.id";
+                groupHavingClause = "GROUP BY m.id HAVING AVG(r.stars) >= ?";
             }
             default -> throw new NotFoundException();
         }
 
-        String sql = usesRatingJoin
-                ? baseSql + whereOrHaving
-                : baseSql + whereOrHaving;
+        String sql = String.join(" ",
+                baseSql,
+                joinClause,
+                whereClause,
+                groupHavingClause
+        ).trim();
 
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
 
+            // Setze den Parameter für PreparedStatement
             if (value instanceof String s) {
                 stmt.setString(1, "%" + s + "%");
             } else if (value instanceof Integer i) {
@@ -104,6 +106,7 @@ public class MediaRepository {
 
         return mediaList;
     }
+
 
 
     public List<MediaWithRatingDto> findAllWithRating() {
@@ -195,30 +198,47 @@ public class MediaRepository {
 
 
     // ========================
-    // FIND BY ID
-    // ========================
-    public Optional<Media> findById(UUID id) {
+// FIND BY ID MIT RATING
+// ========================
+    public MediaWithRatingDto findByIdWithRating(UUID id) {
         String sql = """
-            SELECT id, title, description, director, release_year, genres,
-                   age_restriction, creator_id, created_at, media_type
-            FROM media
-            WHERE id = ?
-            """;
+        SELECT
+            m.id, m.title, m.description, m.director, m.release_year,
+            m.genres, m.age_restriction, m.creator_id, m.created_at, m.media_type,
+            COALESCE(AVG(r.stars), 0) AS avg_rating,
+            COUNT(r.id) AS rating_count
+        FROM media m
+        LEFT JOIN ratings r ON r.media_id = m.id
+        WHERE m.id = ?
+        GROUP BY
+            m.id, m.title, m.description, m.director,
+            m.release_year, m.genres, m.age_restriction,
+            m.creator_id, m.created_at, m.media_type
+        """;
 
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setObject(1, id);
 
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
-                    return Optional.of(mapResultSetToMedia(rs));
+                    Media media = mapResultSetToMedia(rs);
+
+                    MediaWithRatingDto dto = new MediaWithRatingDto();
+                    dto.setMedia(media);
+                    dto.setAverageRating(rs.getDouble("avg_rating"));
+                    dto.setRatingCount(rs.getInt("rating_count"));
+
+                    return dto;
                 }
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
 
-        return Optional.empty();
+        return null;
     }
+
+
 
     public List<Media> findByIdList(List<UUID> ids) {
         if (ids.isEmpty()) return List.of();

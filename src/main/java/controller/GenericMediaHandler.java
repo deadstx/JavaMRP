@@ -75,12 +75,16 @@ public class GenericMediaHandler<T extends Media> extends AuthenticatedHandler {
         if (path.matches("/" + basePath + "/" + UUID_REGEX)) {
             UUID id = UUID.fromString(parts[2]);
 
-            Media media = service.findById(id)
-                    .orElseThrow(NotFoundException::new);
+            MediaWithRatingDto media = service.findById(id);
+
+            if (media == null) {
+                throw new NotFoundException();
+            }
 
             sendJson(exchange, 200, media);
             return;
         }
+
 
         // GET /media
         if (parts.length == 2) {
