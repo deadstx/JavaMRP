@@ -317,7 +317,6 @@ public class MediaRepository {
         String sql = """
         UPDATE media
         SET
-            title = ?,
             description = ?,
             director = ?,
             release_year = ?,
@@ -328,15 +327,14 @@ public class MediaRepository {
         """;
 
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setString(1, media.getTitle());
-            stmt.setString(2, media.getDescription());
-            stmt.setString(3, media.getDirector());
-            stmt.setInt(4, media.getReleaseYear());
-            stmt.setString(5, media.getGenre());
-            stmt.setInt(6, media.getAgeRestriction());
-            stmt.setString(7, media.getMediaType());
-            stmt.setObject(8, media.getId());
-            stmt.setObject(9, media.getCreatorId());
+            stmt.setString(1, media.getDescription());
+            stmt.setString(2, media.getDirector());
+            stmt.setInt(3, media.getReleaseYear());
+            stmt.setString(4, media.getGenre());
+            stmt.setInt(5, media.getAgeRestriction());
+            stmt.setString(6, media.getMediaType());
+            stmt.setObject(7, media.getId());
+            stmt.setObject(8, media.getCreatorId());
 
             int affectedRows = stmt.executeUpdate();
             return affectedRows > 0; // true = Update erfolgreich

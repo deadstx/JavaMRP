@@ -220,6 +220,10 @@ public class GenericMediaHandler<T extends Media> extends AuthenticatedHandler {
             throw MediaException.searchError(); // 404
         }
 
+        if (media.getTitle() != null) {
+            throw MediaException.titleError();
+        }
+
         media.setId(mediaId);
         media.setCreatorId(currentUserId);
 

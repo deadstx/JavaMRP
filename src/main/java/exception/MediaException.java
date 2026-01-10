@@ -39,6 +39,15 @@ public class MediaException extends ApiException {
         );
     }
 
+    public static MediaException titleError() {
+        return new MediaException(
+                400,
+                "TITLE_NOT_CHANGEABLE",
+                "Der Title darf nicht geändert werden"
+        );
+    }
+
+
     // Kommentar konnte nicht gelöscht werden
     public static MediaException deleteError() {
         return new MediaException(
