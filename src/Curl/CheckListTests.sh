@@ -108,6 +108,17 @@ get "$BASE_URL/media/games"
 print_step "ALLE SERIEN"
 get "$BASE_URL/media/series"
 
+print_step "Einen Media Eintrag ÄNDERN"
+ put "$BASE_URL/media/015b8377-2641-4892-aa9e-87d0ac86ce75" "{
+    \"title\": \"NEUER TITEL\",
+    \"director\": \"Test1\",
+    \"description\": \"Test1\",
+    \"mediaType\": \"movie\",
+    \"genre\": \"sci-fi\",
+    \"ageRestriction\": 2,
+    \"releaseYear\": 2002
+  }"
+
 # =========================
 # MEDIA TESTS (FILTERN)
 # =========================

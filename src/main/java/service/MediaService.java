@@ -26,6 +26,10 @@ public class MediaService {
         return repo.findByIdWithRating(id);
     }
 
+    public boolean existsById(UUID mediaId) {
+        return repo.existsById(mediaId);
+    }
+
     // ========================
     // FIND ALL (optional nach Typ)
     // ========================
@@ -51,10 +55,8 @@ public class MediaService {
 // CREATE
 // ========================
     public boolean create(Media media, UUID currentUserId) {
-
         media.setCreatorId(currentUserId);
-        repo.save(media);
-        return true;
+        return repo.insert(media);
     }
 
     // ========================
@@ -62,21 +64,16 @@ public class MediaService {
 // ========================
     public boolean update(Media media, UUID currentUserId) {
         if (media.getId() == null) {
-            // Ohne ID kann man nichts updaten
             return false;
         }
 
-        MediaWithRatingDto existingDto = repo.findByIdWithRating(media.getId());
-        if (existingDto == null) return false; // Medium existiert nicht
-
-        Media existing = existingDto.getMedia();
-        if (!existing.getCreatorId().equals(currentUserId)) return false; // Kein Recht, fremdes Medium zu ändern
+        if(!media.getCreatorId().equals(currentUserId)) return false;
 
         // ID und CreatorId bleiben unverändert
-        media.setCreatorId(existing.getCreatorId());
+        media.setCreatorId(media.getCreatorId());
 
-        repo.save(media);
-        return true;
+        System.out.println("SERVICE GEHT");
+        return repo.update(media);
     }
 
 

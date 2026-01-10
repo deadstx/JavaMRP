@@ -273,39 +273,21 @@ public class MediaRepository {
     }
 
 
-
-    // ========================
-    // SAVE (INSERT / UPDATE)
-    // ========================
-    public void save(Media media) {
-
-        try {
-            if (media.getId() == null) {
-                insert(media);
-            } else {
-                update(media);
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
-
-
-    private void insert(Media media) throws SQLException {
+    public boolean insert(Media media) {
         String sql = """
-            INSERT INTO media (
-                title,
-                description,
-                director,
-                release_year,
-                genres,
-                age_restriction,
-                creator_id,
-                media_type
-            )
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-            RETURNING id
-            """;
+        INSERT INTO media (
+            title,
+            description,
+            director,
+            release_year,
+            genres,
+            age_restriction,
+            creator_id,
+            media_type
+        )
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        RETURNING id
+        """;
 
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, media.getTitle());
@@ -320,24 +302,30 @@ public class MediaRepository {
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
                     media.setId((UUID) rs.getObject("id"));
+                    return true;
                 }
             }
+        } catch (SQLException e) {
+            return false;
         }
+
+        return false;
     }
 
-    private void update(Media media) throws SQLException {
+
+    public boolean update(Media media) {
         String sql = """
-            UPDATE media
-            SET
-                title = ?,
-                description = ?,
-                director = ?,
-                release_year = ?,
-                genres = ?,
-                age_restriction = ?,
-                media_type = ?
-            WHERE id = ? AND creator_id = ?
-            """;
+        UPDATE media
+        SET
+            title = ?,
+            description = ?,
+            director = ?,
+            release_year = ?,
+            genres = ?,
+            age_restriction = ?,
+            media_type = ?
+        WHERE id = ? AND creator_id = ?
+        """;
 
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, media.getTitle());
@@ -350,9 +338,13 @@ public class MediaRepository {
             stmt.setObject(8, media.getId());
             stmt.setObject(9, media.getCreatorId());
 
-            stmt.executeUpdate();
+            int affectedRows = stmt.executeUpdate();
+            return affectedRows > 0; // true = Update erfolgreich
+        } catch (SQLException e) {
+            return false;
         }
     }
+
 
     // ========================
     // DELETE (nur Ersteller)
@@ -383,6 +375,24 @@ public class MediaRepository {
 
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, title);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                return rs.next();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public boolean existsById(UUID mediaId) {
+        String sql = """
+            SELECT 1 FROM media
+            WHERE id = ?
+            """;
+
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setObject(1, mediaId);
 
             try (ResultSet rs = stmt.executeQuery()) {
                 return rs.next();

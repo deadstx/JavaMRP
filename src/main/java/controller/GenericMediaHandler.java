@@ -157,7 +157,7 @@ public class GenericMediaHandler<T extends Media> extends AuthenticatedHandler {
 
         // === Titel prüfen ===
         if (service.existsByTitle(media.getTitle())) {
-            throw new ConflictException();
+            throw MediaException.alreadyExists();
         }
 
         if (media.getDirector() == null || media.getDirector().isBlank()) {
@@ -179,7 +179,7 @@ public class GenericMediaHandler<T extends Media> extends AuthenticatedHandler {
         if (media.getReleaseYear() < 1800 || media.getReleaseYear() > currentYear) {
             throw MediaException.invalidReleaseYear("RELEASE_YEAR");
         }
-        
+
         // === Speichern ===
         boolean created = service.create(media, currentUserId);
         if (!created) {
@@ -195,13 +195,19 @@ public class GenericMediaHandler<T extends Media> extends AuthenticatedHandler {
     // ========================
     private void handleUpdate(HttpExchange exchange) throws IOException, ApiException {
         String path = exchange.getRequestURI().getPath();
-        UUID currentUserId = getCurrentUserId(exchange);
-
-        if (!path.matches("/" + basePath + "/" + UUID_REGEX)) {
+        if (!"PUT".equalsIgnoreCase(exchange.getRequestMethod())
+                || !path.matches("/" + basePath + "/" + UUID_REGEX)) {
             throw new BadRequestException();
         }
 
-        UUID id = UUID.fromString(path.split("/")[2]);
+        UUID mediaId;
+        try {
+            mediaId = UUID.fromString(path.split("/")[2]);
+        } catch (IllegalArgumentException e) {
+            throw new BadRequestException();
+        }
+
+        UUID currentUserId = getCurrentUserId(exchange);
 
         T media;
         try {
@@ -210,15 +216,21 @@ public class GenericMediaHandler<T extends Media> extends AuthenticatedHandler {
             throw new InvalidJsonException();
         }
 
-        media.setId(id);
+        if (!service.existsById(mediaId)) {
+            throw MediaException.searchError(); // 404
+        }
 
-        boolean updated = service.update(media, currentUserId); // <- update statt save
+        media.setId(mediaId);
+        media.setCreatorId(currentUserId);
+
+        boolean updated = service.update(media, currentUserId);
         if (!updated) {
-            throw new ServerErrorException(); // z.B. Medium existiert nicht oder kein Zugriff
+            throw new ServerErrorException();
         }
 
         responseGenerator.sendJsonResponse(exchange, 204, "");
     }
+
 
 
     // ========================
@@ -234,9 +246,10 @@ public class GenericMediaHandler<T extends Media> extends AuthenticatedHandler {
 
         UUID id = UUID.fromString(path.split("/")[2]);
 
+
         boolean deleted = service.delete(id, currentUserId);
         if (!deleted) {
-            throw new NotFoundException();
+            throw new ServerErrorException();
         }
 
         responseGenerator.sendJsonResponse(exchange, 200, "Media gelöscht");

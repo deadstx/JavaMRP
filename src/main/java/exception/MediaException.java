@@ -34,8 +34,8 @@ public class MediaException extends ApiException {
     public static MediaException alreadyExists() {
         return new MediaException(
                 409,
-                "COMMENT_EXISTS",
-                "Kommentar für dieses Medium existiert bereits"
+                "ALREADY_EXISTS",
+                "Dieser Titel ist bereits vergeben"
         );
     }
 
@@ -44,25 +44,27 @@ public class MediaException extends ApiException {
         return new MediaException(
                 400,
                 "DELETE_FAILED",
-                "Kommentar konnte nicht gelöscht werden"
+                "Medium konnte nicht gelöscht werden"
+        );
+    }
+
+    // Kommentar konnte nicht gelöscht werden
+    public static MediaException searchError() {
+        return new MediaException(
+                404,
+                "SEARCH_ERROR",
+                "Medium konnte nicht gefunden werden"
         );
     }
 
     // Kommentar konnte nicht erstellt werden
-    public static MediaException insertError() {
+    public static MediaException updateError() {
         return new MediaException(
                 500,
-                "INSERT_FAILED",
-                "Kommentar konnte nicht erstellt werden"
+                "UPDATE_FAILED",
+                "Daten konnten nicht bearbeitet werden"
         );
     }
 
-    // Kommentar konnte nicht bestätigt werden
-    public static MediaException confirmError() {
-        return new MediaException(
-                400,
-                "CONFIRM_FAILED",
-                "Kommentar konnte nicht bestätigt werden"
-        );
-    }
+
 }
