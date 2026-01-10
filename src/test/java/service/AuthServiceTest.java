@@ -23,7 +23,6 @@ class AuthServiceTest {
     @InjectMocks
     AuthService authService;
 
-
     @Test
     void isValidLogin_correctPassword_shouldReturnTrue() {
         String username = "max";
@@ -40,10 +39,9 @@ class AuthServiceTest {
         verify(userRepository).findPasswordHashByUsername(username);
     }
 
-
     @Test
     void isValidLogin_wrongPassword_shouldReturnFalse() {
-        String username = "max";
+        String username = "testUsername";
 
         String hash = BCrypt.hashpw("correctPassword", BCrypt.gensalt());
 

@@ -44,22 +44,22 @@ delete() {
     -X DELETE "$1"
 }
 
-## =========================
-## REGISTRIEREN
-## =========================
-#rm -f "$COOKIE_FILE"
-#
-#print_step "NEUEN Account erstellen"
-#post "$BASE_URL/users/register" '{
-#  "username": "larshosnedl",
-#  "password": "test123"
-#}'
-#
-#print_step "Account erstellen, dessen USERNAME VERGEBEN ist"
-#post "$BASE_URL/users/register" '{
-#  "username": "larshosnedl",
-#  "password": "test123"
-#}'
+# =========================
+# REGISTRIEREN
+# =========================
+rm -f "$COOKIE_FILE"
+
+print_step "NEUEN Account erstellen"
+post "$BASE_URL/users/register" '{
+  "username": "Max123",
+  "password": "TestPassword123!"
+}'
+
+print_step "Account erstellen, dessen USERNAME VERGEBEN ist"
+post "$BASE_URL/users/register" '{
+  "username": "Max123",
+  "password": "TestPassword123!"
+}'
 
 
 # =========================

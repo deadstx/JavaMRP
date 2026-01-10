@@ -40,9 +40,8 @@ public class RegisterHandler implements HttpHandler {
             String username = credentials.get("username");
             String password = credentials.get("password");
 
-            if (username == null || password == null ||
-                    username.isBlank() || password.isBlank()) {
-                throw new BadRequestException();
+            if (registerService.validateUsername(username) == false || registerService.validatePassword(password) == false) {
+                throw new WrongInputException();
             }
 
             boolean success = registerService.registerUser(username, password);

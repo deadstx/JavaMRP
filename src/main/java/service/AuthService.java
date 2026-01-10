@@ -18,13 +18,17 @@ public class AuthService {
 
     private final UserRepository userRepository;
 
-    // 🔑 Repository wird injected
     public AuthService(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
 
-    // Login prüfen
+    private boolean verifyUsername(String username) {
+        return username != null;
+    }
+
     public boolean isValidLogin(String username, String password) {
+        if(!verifyUsername(username)) return false;
+
         String storedHash = userRepository.findPasswordHashByUsername(username);
 
         if (storedHash == null) {
@@ -40,15 +44,11 @@ public class AuthService {
                 .build();
 
         DecodedJWT jwt = verifier.verify(token);
-        String username = jwt.getSubject(); // das gleiche wie Subject in generateToken
+        String username = jwt.getSubject();
 
-        // Falls User-ID in DB oder Token gespeichert ist:
         return userRepository.findIdByUsername(username);
     }
 
-
-
-    // Token erstellen
     public String generateToken(String username) {
         return JWT.create()
                 .withIssuer("mrp-api")
@@ -58,7 +58,6 @@ public class AuthService {
                 .sign(algorithm);
     }
 
-    // Token verifizieren
     public void verifyToken(String token) {
         JWT.require(algorithm)
                 .withIssuer("mrp-api")
