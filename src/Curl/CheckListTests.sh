@@ -49,17 +49,17 @@ delete() {
 # =========================
 rm -f "$COOKIE_FILE"
 
-print_step "NEUEN Account erstellen"
-post "$BASE_URL/users/register" '{
-  "username": "Max123",
-  "password": "TestPassword123!"
-}'
-
-print_step "Account erstellen, dessen USERNAME VERGEBEN ist"
-post "$BASE_URL/users/register" '{
-  "username": "Max123",
-  "password": "TestPassword123!"
-}'
+#print_step "NEUEN Account erstellen"
+#post "$BASE_URL/users/register" '{
+#  "username": "Max123",
+#  "password": "TestPassword123!"
+#}'
+#
+#print_step "Account erstellen, dessen USERNAME VERGEBEN ist"
+#post "$BASE_URL/users/register" '{
+#  "username": "TestUser1",
+#  "password": "TestPassword123!"
+#}'
 
 
 # =========================
@@ -74,18 +74,30 @@ post "$BASE_URL/users/login" '{
 
 print_step "LOGIN mit GÜLTIGEN Zugangsdaten"
 post "$BASE_URL/users/login" '{
-  "username": "user1",
-  "password": "test123"
+  "username": "TestUser1",
+  "password": "TestPassword123!"
 }'
 
 # =========================
 # MEDIA TESTS
 # =========================
+
+print_step "Einen Media Eintrag hinzufügen der schon existiert"
+ post "$BASE_URL/media/" "{
+    \"title\": \"Inception\",
+    \"director\": \"Test\",
+    \"description\": \"Test\",
+    \"mediaType\": \"movie\",
+    \"genre\": \"sci-fi\",
+    \"ageRestriction\": 16,
+    \"releaseYear\": 2008
+  }"
+
 print_step "Alle Media Einträge abrufen (Filme, Serien und Spiele)"
 get "$BASE_URL/media"
 
 print_step "Einen SPEZIFISCHEN Media Eintrag abrufen"
-get "$BASE_URL/media/c56a6273-fc47-42e9-b72e-d54f90c5e88a"
+get "$BASE_URL/media/ab776e09-1f0c-4d48-b4b7-b789010f7672"
 
 print_step "ALLE FILME"
 get "$BASE_URL/media/movies"
@@ -113,7 +125,7 @@ print_step "Media Einträge FILTERN nach ALTERSFREIGABE"
 get "$BASE_URL/media/filter/age_restriction/16"
 
 print_step "Media Einträge FILTERN nach MINDESTE BEWERTUNG"
-get "$BASE_URL/media/filter/min_rating/5"
+get "$BASE_URL/media/filter/min_rating/2"
 
 # =========================
 # BENUTZERPROFIL TESTS

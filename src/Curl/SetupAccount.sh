@@ -50,8 +50,8 @@ rm -f "$COOKIE_FILE"
 # MEDIA ERSTELLEN MIT WECHSELNDEN ACCOUNTS
 # =========================
 
-users=(user1 user2 user3 user4 user5)
-password="test123"
+users=(TestUser1 TestUser2 TestUser3 TestUser4 TestUser5)
+password="TestPassword123!"
 
 titles=(
   "Inception" "The Last of Us" "The Witcher 3" "Breaking Bad" "God of War Ragnarök"
@@ -79,16 +79,16 @@ age_restrictions=(12 16 18 16 18 12 16 18 12 18)
 release_years=(1999 2003 1989 2010 2022 2004 2018 1999 2000 2008)
 
 media_ids=(
-  c56a6273-fc47-42e9-b72e-d54f90c5e88a
-  0fb1c40e-fc70-414b-a209-9f64cf601802
-  e45ba185-4ca4-43b0-98ef-3bc6c3c8c6a3
-  5f6bd727-c6af-4a61-88e4-e37d644f75d1
-  167bd34f-0ea2-4a8e-8420-f8f4759d1a5a
-  e75e9532-f21c-47ae-92d7-b508cd785247
-  ac43d4c1-d0ea-4458-9b90-8968edf90e80
-  1a7202da-4527-4435-b1dd-f914a594e5a5
-  3c0bab8f-3da9-4fa3-b9f3-2c516134e4b7
-  f14f4a64-3dc6-4b00-bd59-0fc734f5b1a7
+  015b8377-2641-4892-aa9e-87d0ac86ce75
+  6a989018-22ea-4c4a-b227-818447dd0dc8
+  cfe19d44-371b-4b18-8e54-5fdefbbe5f07
+  68ae8da1-5933-4a9e-8be4-c8d7de1af751
+  375f5ed5-f68f-4a13-a36c-55b9797bdd32
+  ab776e09-1f0c-4d48-b4b7-b789010f7672
+  38e9ae99-e8cf-4500-89eb-7b487e0229c5
+  28525183-dcac-4126-a116-15ee9f5a0263
+  758d011d-242d-48b7-ad49-d582fba71f38
+  3139da90-cf0e-4207-9119-4daf97de67dc
 )
 
   comments_positive=(
@@ -105,37 +105,89 @@ media_ids=(
     "Nicht mein Geschmack."
   )
 
+print_step "5 Accounts erstellen"
+
+for i in {0..4}; do
+  current_user="TestUser$((i+1))"   # Neue Usernamen generieren
+  current_password="TestPassword123!"  # Passwort kann gleich bleiben
+
+  echo "==== ERSTELLE ACCOUNT: $current_user ===="
+
+  # Cookies löschen für neuen Account (optional)
+  rm -f "$COOKIE_FILE"
+
+  # Account erstellen
+  response=$(post "$BASE_URL/users/register" "{
+    \"username\": \"$current_user\",
+    \"password\": \"$current_password\"
+  }")
+
+  # Prüfen, ob die Registrierung erfolgreich war
+  if echo "$response" | grep -q "200"; then
+    echo "Account $current_user erfolgreich erstellt!"
+  else
+    echo "FEHLER: Account $current_user konnte nicht erstellt werden."
+    echo "$response"
+    continue
+  fi
+
+  # Direkt nach Registrierung einloggen, um Cookies zu erhalten
+  response=$(post "$BASE_URL/users/login" "{
+    \"username\": \"$current_user\",
+    \"password\": \"$current_password\"
+  }")
+
+  if ! echo "$response" | grep -q "200"; then
+    echo "FEHLER: Login für $current_user fehlgeschlagen!"
+    echo "$response"
+    continue
+  fi
+
+  echo "==== Media Eintrag für $current_user erstellen ===="
+  post "$BASE_URL/media/" "{
+    \"title\": \"${titles[$i]}\",
+    \"director\": \"${directors[$i]}\",
+    \"description\": \"${descriptions[$i]}\",
+    \"mediaType\": \"${mediaTypes[$i]}\",
+    \"genre\": \"${genres[$i]}\",
+    \"ageRestriction\": ${age_restrictions[$i]},
+    \"releaseYear\": ${release_years[$i]}
+  }"
+
+done
 
 
-#print_step "10 Media Einträge mit wechselnden Accounts erstellen"
-#
-#for i in {0..9}; do
-#  user_index=$((i % 5))
-#  current_user=${users[$user_index]}
-#
-#  echo "==== LOGIN als $current_user ===="
-#
-#  # Cookies löschen, um neuen Login zu erzwingen
-#  rm -f "$COOKIE_FILE"
-#
-#  post "$BASE_URL/users/login" "{
-#    \"username\": \"$current_user\",
-#    \"password\": \"$password\"
-#  }"
-#
-#  echo "Erstelle Media Eintrag $((i+1)) als $current_user"
-#
-#  post "$BASE_URL/media/" "{
-#    \"title\": \"${titles[$i]}\",
-#    \"director\": \"${directors[$i]}\",
-#    \"description\": \"${descriptions[$i]}\",
-#    \"mediaType\": \"${mediaTypes[$i]}\",
-#    \"genre\": \"${genres[$i]}\",
-#    \"ageRestriction\": ${age_restrictions[$i]},
-#    \"releaseYear\": ${release_years[$i]}
-#  }"
-#
-#done
+
+
+print_step "10 Media Einträge mit wechselnden Accounts erstellen"
+
+for i in {0..9}; do
+  user_index=$((i % 5))
+  current_user=${users[$user_index]}
+
+  echo "==== LOGIN als $current_user ===="
+
+  # Cookies löschen, um neuen Login zu erzwingen
+  rm -f "$COOKIE_FILE"
+
+  post "$BASE_URL/users/login" "{
+    \"username\": \"$current_user\",
+    \"password\": \"$password\"
+  }"
+
+  echo "Erstelle Media Eintrag $((i+1)) als $current_user"
+
+  post "$BASE_URL/media/" "{
+    \"title\": \"${titles[$i]}\",
+    \"director\": \"${directors[$i]}\",
+    \"description\": \"${descriptions[$i]}\",
+    \"mediaType\": \"${mediaTypes[$i]}\",
+    \"genre\": \"${genres[$i]}\",
+    \"ageRestriction\": ${age_restrictions[$i]},
+    \"releaseYear\": ${release_years[$i]}
+  }"
+
+done
 
 for i in {0..9}; do
   user_index=$((i % 5))

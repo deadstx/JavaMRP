@@ -375,6 +375,25 @@ public class MediaRepository {
         return false;
     }
 
+    public boolean existsByTitle(String title) {
+        String sql = """
+            SELECT 1 FROM media
+            WHERE title = ?
+            """;
+
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, title);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                return rs.next();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+
     // ========================
     // MAPPING
     // ========================

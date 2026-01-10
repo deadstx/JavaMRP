@@ -48,26 +48,37 @@ public class MediaService {
     }
 
     // ========================
-// CREATE / UPDATE
+// CREATE
 // ========================
-    public boolean save(Media media, UUID currentUserId) {
-        if (media.getId() != null) {
-            MediaWithRatingDto existingDto = repo.findByIdWithRating(media.getId());
+    public boolean create(Media media, UUID currentUserId) {
 
-            if (existingDto == null) return false; // Medium existiert nicht
+        media.setCreatorId(currentUserId);
+        repo.save(media);
+        return true;
+    }
 
-            Media existing = existingDto.getMedia();
-
-            if (!existing.getCreatorId().equals(currentUserId)) return false;
-
-            media.setCreatorId(existing.getCreatorId());
-        } else {
-            media.setCreatorId(currentUserId);
+    // ========================
+// UPDATE
+// ========================
+    public boolean update(Media media, UUID currentUserId) {
+        if (media.getId() == null) {
+            // Ohne ID kann man nichts updaten
+            return false;
         }
+
+        MediaWithRatingDto existingDto = repo.findByIdWithRating(media.getId());
+        if (existingDto == null) return false; // Medium existiert nicht
+
+        Media existing = existingDto.getMedia();
+        if (!existing.getCreatorId().equals(currentUserId)) return false; // Kein Recht, fremdes Medium zu ändern
+
+        // ID und CreatorId bleiben unverändert
+        media.setCreatorId(existing.getCreatorId());
 
         repo.save(media);
         return true;
     }
+
 
 
     // ========================
@@ -77,7 +88,9 @@ public class MediaService {
         return repo.findByFilter(filterType, value);
     }
 
-
+    public boolean existsByTitle(String title) {
+        return repo.existsByTitle(title);
+    }
 
     // ========================
     // DELETE

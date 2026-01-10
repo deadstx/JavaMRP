@@ -150,13 +150,45 @@ public class GenericMediaHandler<T extends Media> extends AuthenticatedHandler {
             throw new InvalidJsonException();
         }
 
-        boolean saved = service.save(media, currentUserId);
-        if (!saved) {
+        // === Eingaben prüfen ===
+        if (media.getTitle() == null || media.getTitle().isBlank()) {
+            throw  MediaException.invalidText("TITLE");
+        }
+
+        // === Titel prüfen ===
+        if (service.existsByTitle(media.getTitle())) {
+            throw new ConflictException();
+        }
+
+        if (media.getDirector() == null || media.getDirector().isBlank()) {
+            throw MediaException.invalidText("DIRECTOR");
+        }
+        if (media.getDescription() == null || media.getDescription().isBlank()) {
+            throw MediaException.invalidText("DESCRIPTION");
+        }
+        if (media.getMediaType() == null) {
+            throw MediaException.invalidText("MEDIA_TYPE");
+        }
+        if (media.getGenre() == null || media.getGenre().isBlank()) {
+            throw MediaException.invalidText("GENRE");
+        }
+        if (media.getAgeRestriction() < 0) {
+            throw MediaException.invalidAgeRestriction("AGE_RESTRICTION");
+        }
+        int currentYear = java.time.Year.now().getValue();
+        if (media.getReleaseYear() < 1800 || media.getReleaseYear() > currentYear) {
+            throw MediaException.invalidReleaseYear("RELEASE_YEAR");
+        }
+        
+        // === Speichern ===
+        boolean created = service.create(media, currentUserId);
+        if (!created) {
             throw new ServerErrorException();
         }
 
         responseGenerator.sendJsonResponse(exchange, 201, "Media erstellt");
     }
+
 
     // ========================
     // PUT
@@ -180,13 +212,14 @@ public class GenericMediaHandler<T extends Media> extends AuthenticatedHandler {
 
         media.setId(id);
 
-        boolean updated = service.save(media, currentUserId);
+        boolean updated = service.update(media, currentUserId); // <- update statt save
         if (!updated) {
-            throw new ServerErrorException();
+            throw new ServerErrorException(); // z.B. Medium existiert nicht oder kein Zugriff
         }
 
         responseGenerator.sendJsonResponse(exchange, 204, "");
     }
+
 
     // ========================
     // DELETE
