@@ -9,7 +9,6 @@ import repository.MediaRepository;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 public class MediaService {
 
@@ -38,30 +37,29 @@ public class MediaService {
     }
 
     public List<MediaWithRatingDto> findAllWithRating() {
-        System.out.println("SERVICE: findAllWithRating()");
         return repo.findAllWithRating();
     }
 
-    public List<MediaWithRatingDto> findReccommendedMedias(String favoriteGenre, int recommendationCount) {
-        return repo.findReccommendedMedias(favoriteGenre, recommendationCount);
+    public List<MediaWithRatingDto> findRecommendedMedias(String favoriteGenre, int recommendationCount) {
+        return repo.findRecommendedMedias(favoriteGenre, recommendationCount);
     }
 
-
+    // überlegen ob noch nützlich (ich lasse mal drinnen)
     public List<Media> findAll() {
         return repo.findAll(Optional.empty());
     }
 
     // ========================
-// CREATE
-// ========================
+    // CREATE
+    // ========================
     public boolean create(Media media, UUID currentUserId) {
         media.setCreatorId(currentUserId);
         return repo.insert(media);
     }
 
     // ========================
-// UPDATE
-// ========================
+    // UPDATE
+    // ========================
     public boolean update(Media media, UUID currentUserId) {
         if (media.getId() == null) {
             return false;
@@ -69,14 +67,11 @@ public class MediaService {
 
         if(!media.getCreatorId().equals(currentUserId)) return false;
 
-        // ID und CreatorId bleiben unverändert
+        // müssen serverside gesetzt werden sonst security issue
         media.setCreatorId(media.getCreatorId());
 
-        System.out.println("SERVICE GEHT");
         return repo.update(media);
     }
-
-
 
     // ========================
     // FILTER METHODS

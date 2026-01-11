@@ -127,7 +127,7 @@ public class CommentHandler extends AuthenticatedHandler {
 
         boolean success = service.addNewComment(mediaId, userId, comment.getComment_text());
         if (success) {
-            responseGenerator.sendJsonSuccess(exchange, 201, "Kommentar erstellt");
+            responseGenerator.sendJsonResponse(exchange, 201, "Kommentar erstellt");
         } else {
             throw new ServerErrorException();
         }
@@ -145,7 +145,7 @@ public class CommentHandler extends AuthenticatedHandler {
 
             boolean success = service.deleteComment(mediaId, userId);
             if (success) {
-                responseGenerator.sendJsonSuccess(exchange, 200, "Kommentar gelöscht!");
+                responseGenerator.sendJsonResponse(exchange, 200, "Kommentar gelöscht!");
             } else {
                 throw CommentException.deleteError();
             }

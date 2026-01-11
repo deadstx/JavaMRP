@@ -22,6 +22,14 @@ public class CommentException extends ApiException {
         );
     }
 
+    public static CommentException textTooLong() {
+        return new CommentException(
+                400,
+                "TEXT_TOO_LONG",
+                "Kommentartext ist zu lang"
+        );
+    }
+
     // Kommentar existiert schon
     public static CommentException alreadyExists() {
         return new CommentException(

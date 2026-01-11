@@ -1,7 +1,9 @@
 package repository;
 
+import exception.ServerErrorException;
 import models.Favorite;
 
+import java.rmi.ServerError;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -18,9 +20,6 @@ public class FavoriteRepository {
         this.conn = conn;
     }
 
-    /**
-     * Prüft, ob ein Favorite bereits existiert
-     */
     public boolean checkIfExists(UUID mediaId, UUID userId) {
         String sql = """
             SELECT 1
@@ -42,9 +41,6 @@ public class FavoriteRepository {
         return false;
     }
 
-    /**
-     * Fügt ein Favorite hinzu und gibt das erstellte Objekt zurück
-     */
     public boolean markAsFavorite(UUID mediaId, UUID userId) {
         String sql = """
         INSERT INTO favorites (media_id, user_id)
@@ -63,9 +59,6 @@ public class FavoriteRepository {
     }
 
 
-    /**
-     * Entfernt ein Favorite
-     */
     public boolean removeFromFavorites(UUID mediaId, UUID currentUserId) {
         String sql = """
             DELETE FROM favorites
@@ -104,16 +97,12 @@ public class FavoriteRepository {
                 }
             }
         } catch (SQLException e) {
-            throw new RuntimeException("Failed to fetch favorite genre for user " + userId, e);
+            throw new ServerErrorException();
         }
 
         return null; // User hat keine Ratings
     }
 
-
-    /**
-     * Gibt alle Media-IDs zurück, die ein User favorisiert hat
-     */
     public List<UUID> findFavoritesByUser(UUID userId) {
         List<UUID> mediaIds = new ArrayList<>();
 
@@ -138,9 +127,7 @@ public class FavoriteRepository {
         return mediaIds;
     }
 
-    /**
-     * Mapper-Methode
-     */
+
     private Favorite mapResultSetToFavorite(ResultSet rs) throws SQLException {
         return new Favorite(
                 rs.getObject("id", UUID.class),

@@ -1,5 +1,6 @@
 package service;
 
+import exception.CommentException;
 import models.Comment;
 import repository.CommentRepository;
 
@@ -19,12 +20,10 @@ public class CommentService {
      * --------------------------------------------------- */
 
     public List<Comment> getCommentsByMedia(UUID mediaId) {
-        System.out.println("getCommentsByMedia Service");
         return commentRepository.findAllCommentsByMedia(mediaId);
     }
 
     public List<Comment> getCommentsByUser(UUID userId) {
-        System.out.println("getCommentsByUser Service");
         return commentRepository.findAllCommentsByUser(userId);
     }
 
@@ -33,7 +32,6 @@ public class CommentService {
      * --------------------------------------------------- */
 
     public boolean deleteComment(UUID mediaId, UUID currentUserId) {
-        System.out.println("deleteComment Service");
         return commentRepository.deleteComment(mediaId, currentUserId);
     }
 
@@ -42,12 +40,11 @@ public class CommentService {
      * --------------------------------------------------- */
 
     public boolean addNewComment(UUID mediaId, UUID currentUserId, String commentText) {
-        System.out.println("addNewComment Service");
         if (commentText == null || commentText.isBlank()) {
-            throw new IllegalArgumentException("Kommentar darf nicht leer sein.");
+            throw CommentException.invalidText();
         }
         if (commentText.length() > 255) {
-            throw new IllegalArgumentException("Kommentar darf maximal 255 Zeichen haben.");
+            throw CommentException.textTooLong();
         }
         return commentRepository.addNewComment(mediaId, currentUserId, commentText);
     }
@@ -57,7 +54,6 @@ public class CommentService {
      * --------------------------------------------------- */
 
     public boolean confirmComment(UUID mediaId, UUID currentUserId) {
-        System.out.println("confirmComment Service");
         return commentRepository.confirmComment(mediaId, currentUserId);
     }
 
@@ -66,7 +62,6 @@ public class CommentService {
      * --------------------------------------------------- */
 
     public boolean commentExistsByUserAndMedia(UUID currentUserId, UUID mediaId) {
-        List<Comment> comments = commentRepository.findAllCommentsByUser(currentUserId);
-        return comments.stream().anyMatch(c -> c.getMediaId().equals(mediaId));
+        return commentRepository.commentExistsByUserAndMedia(mediaId, currentUserId);
     }
 }

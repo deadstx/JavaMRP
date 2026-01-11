@@ -69,9 +69,8 @@ public class Server {
             server.createContext("/users/login", new LoginHandler(authService));
             server.createContext("/users/register", new RegisterHandler(registerService));
 
-            //USERS
+            //PROFILE
             server.createContext("/profile/users", new ProfileHandler(authService, profileService));
-           // server.createContext("users/recommendations", new RecommendationHandler(authService));
 
             // LEADERBOARD
             server.createContext("/leaderboard", new LeaderboardHandler(authService, leaderboardService));

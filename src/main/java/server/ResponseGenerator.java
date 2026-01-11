@@ -14,13 +14,6 @@ public class ResponseGenerator {
     private static final ObjectMapper mapper = new ObjectMapper();
 
     // -------------------------------
-    // Success Response
-    // -------------------------------
-    public void sendJsonSuccess(HttpExchange exchange, int statusCode, Object body) throws IOException {
-        sendJsonResponse(exchange, statusCode, body);
-    }
-
-    // -------------------------------
     // Error Response aus Exception
     // -------------------------------
     public void sendJsonError(HttpExchange exchange, ApiException ex) throws IOException {
@@ -32,7 +25,7 @@ public class ResponseGenerator {
     }
 
     // -------------------------------
-    // Low-Level: generischer JSON-Response
+    // Success Response
     // -------------------------------
     public void sendJsonResponse(HttpExchange exchange, int statusCode, Object body) throws IOException {
         String json = mapper.writeValueAsString(body);

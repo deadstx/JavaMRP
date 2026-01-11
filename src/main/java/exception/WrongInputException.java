@@ -7,7 +7,7 @@ public class WrongInputException extends ApiException {
         super(
                 400,
                 "WRONG_INPUT",
-                "Die Eingabe stimmt nicht mit dem REGEX überein"
+                "Die Eingabe stimmt nicht mit der Vorgabe überein"
         );
     }
 

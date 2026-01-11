@@ -1,12 +1,9 @@
 package service;
 
-import models.Favorite;
 import models.Media;
 import repository.FavoriteRepository;
 import repository.MediaRepository;
-import service.AuthService;
 
-import java.sql.SQLException;
 import java.util.List;
 import java.util.UUID;
 
@@ -23,7 +20,6 @@ public class FavoriteService {
 
     public List<Media> getUserFavorites(UUID userId) {
         List<UUID> mediaIds = favoriteRepo.findFavoritesByUser(userId);
-        System.out.println("Service geht");
         return mediaRepo.findByIdList(mediaIds);
     }
 

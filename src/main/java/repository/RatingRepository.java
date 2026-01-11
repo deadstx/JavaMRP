@@ -1,6 +1,7 @@
 package repository;
 
 import dto.LeaderboardUserDto;
+import exception.ServerErrorException;
 import models.Rating;
 
 import java.sql.Connection;
@@ -90,6 +91,8 @@ public class RatingRepository {
         return ratings;
     }
 
+
+
     public List<LeaderboardUserDto> findTopUserList(int userCount) {
         String sql = """
         SELECT user_id, COUNT(*) AS cnt
@@ -120,10 +123,6 @@ public class RatingRepository {
     }
 
 
-
-
-
-
     // ALLE RATINGS EINES USERS
     public List<Rating> findByUserId(UUID userId) {
         String sql = """
@@ -149,8 +148,8 @@ public class RatingRepository {
         return ratings;
     }
 
-    // ANZAHL DER RATINGS EINES USERS (FÜR STATISTIKEN)
 
+    // ANZAHL DER RATINGS EINES USERS (FÜR STATISTIKEN)
     public int findRatingCountByUser(UUID userId) {
         String sql = """
         SELECT COUNT(*)
@@ -167,10 +166,9 @@ public class RatingRepository {
                 }
             }
         } catch (SQLException e) {
-            throw new RuntimeException("Failed to count ratings for user " + userId, e);
+            throw new ServerErrorException();
         }
-
-        return 0;
+        return 0; // keine ratings
     }
 
 
@@ -241,35 +239,6 @@ public class RatingRepository {
             return false;
         }
     }
-
-    /* ---------------------------------------------------
-     * UPDATE STATUS
-     * --------------------------------------------------- */
-    public boolean updateRatingStatus(UUID ratingId, UUID currentUserId) {
-        String sql = """
-        UPDATE ratings
-        SET is_confirmed = TRUE
-        WHERE id = ? AND user_id = ?
-    """;
-
-        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setObject(1, ratingId);
-            stmt.setObject(2, currentUserId);
-
-            int affectedRows = stmt.executeUpdate();
-
-            if (affectedRows == 0) {
-                return false;
-            }
-
-            return true;
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return false;
-        }
-    }
-
-
 
     /* ---------------------------------------------------
      * MAPPER

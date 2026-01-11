@@ -39,7 +39,6 @@ public class RatingHandler extends AuthenticatedHandler {
                 case "GET" -> handleGet(exchange);
                 case "POST" -> handlePost(exchange);
                 case "DELETE" -> handleDelete(exchange);
-                case "PUT" -> handleUpdate(exchange);
                 default -> throw new NotFoundException();
             }
 
@@ -182,25 +181,4 @@ public class RatingHandler extends AuthenticatedHandler {
         throw new NotFoundException();
     }
 
-    /* ---------------------------------------------------
-     * PUT (UPDATE / CONFIRM)
-     * --------------------------------------------------- */
-    private void handleUpdate(HttpExchange exchange) throws IOException, ApiException {
-        String path = exchange.getRequestURI().getPath();
-
-        if (path.matches("/ratings/media/" + UUID_REGEX)) {
-            UUID ratingId = UUID.fromString(path.substring(path.lastIndexOf("/") + 1));
-            UUID userId = getCurrentUserId(exchange);
-
-            boolean success = service.updateRatingStatus(ratingId, userId);
-            if (success) {
-                responseGenerator.sendJsonResponse(exchange, 200, "Rating bestätigt!");
-            } else {
-                throw new ServerErrorException();
-            }
-            return;
-        }
-
-        throw new NotFoundException();
-    }
 }

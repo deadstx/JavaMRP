@@ -24,7 +24,6 @@ public class MediaRepository {
     public List<Media> findAll(Optional<MediaType> mediaType) {
         List<Media> mediaList = new ArrayList<>();
 
-
         String sql = """
             SELECT id, title, description, director, release_year, genres,
                    age_restriction, creator_id, created_at, media_type
@@ -63,7 +62,6 @@ public class MediaRepository {
         String whereClause = "";
         String groupHavingClause = "";
 
-        // Baue die SQL-Bedingungen basierend auf dem Filter
         switch (filterType) {
             case TITLE -> whereClause = "WHERE m.title ILIKE ?";
             case GENRE -> whereClause = "WHERE m.genres ILIKE ?";
@@ -85,8 +83,8 @@ public class MediaRepository {
 
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-            // Setze den Parameter für PreparedStatement
-            if (value instanceof String s) {
+            // Setze Parameter für PreparedStatement
+            if (value instanceof String s) { //erstellt direkt s und castet richtig
                 stmt.setString(1, "%" + s + "%");
             } else if (value instanceof Integer i) {
                 stmt.setInt(1, i);
@@ -148,7 +146,7 @@ public class MediaRepository {
     }
 
 
-    public List<MediaWithRatingDto> findReccommendedMedias(String genre, int recommendationCount) {
+    public List<MediaWithRatingDto> findRecommendedMedias(String genre, int recommendationCount) {
         List<MediaWithRatingDto> result = new ArrayList<>();
 
         String sql = """
@@ -189,17 +187,12 @@ public class MediaRepository {
         } catch (SQLException e) {
             e.printStackTrace();
         }
-
         return result;
     }
 
-
-
-
-
     // ========================
-// FIND BY ID MIT RATING
-// ========================
+    // FIND BY ID MIT RATING
+    // ========================
     public MediaWithRatingDto findByIdWithRating(UUID id) {
         String sql = """
         SELECT

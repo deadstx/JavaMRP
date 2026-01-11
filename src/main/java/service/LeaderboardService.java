@@ -24,5 +24,4 @@ public class LeaderboardService {
         List<LeaderboardUserDto> topUserIdList = ratingService.getTopUserIdList(userCount);
         return userRepository.enrichLeaderboardUsers(topUserIdList);
     }
-
 }

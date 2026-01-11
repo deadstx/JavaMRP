@@ -15,10 +15,7 @@ public class Media {
     private UUID creator_id;
     private String created_at;
 
-    // ----- Konstruktoren -----
-
-    public Media() {
-    }
+    public Media() {}
 
     public Media(UUID id, String title, String director, String description, String media_type,
                  int release_year, String genre, int age_restriction, UUID creator_id) {

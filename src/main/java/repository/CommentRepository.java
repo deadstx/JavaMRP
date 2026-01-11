@@ -1,5 +1,6 @@
 package repository;
 
+import exception.ServerErrorException;
 import models.Comment;
 
 import java.sql.Connection;
@@ -139,6 +140,28 @@ public class CommentRepository {
             return false;
         }
     }
+
+    public boolean commentExistsByUserAndMedia(UUID mediaId, UUID currentUserId) {
+        String sql = """
+            SELECT 1
+            FROM comments
+            WHERE media_id = ? AND user_id = ?
+            LIMIT 1
+            """;
+
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setObject(1, mediaId);
+            stmt.setObject(2, currentUserId);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                return rs.next();
+            }
+
+        } catch (SQLException e) {
+            throw new ServerErrorException();
+        }
+    }
+
 
     /* ---------------------------------------------------
      * MAPPER

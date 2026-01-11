@@ -1,11 +1,10 @@
 package service;
 
 import dto.LeaderboardUserDto;
+import exception.WrongInputException;
 import models.Rating;
 import repository.RatingRepository;
 
-import java.io.IOException;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -21,6 +20,7 @@ public class RatingService {
      * READ
      * --------------------------------------------------- */
 
+    // spezifisches Rating suchen (mit ratingID)
     public Rating getRatingById(UUID ratingId) {
         return ratingRepository.findById(ratingId);
     }
@@ -41,9 +41,6 @@ public class RatingService {
         return ratingRepository.findTopUserList(userCount);
     }
 
-
-
-
     public int getRatingCountByUser(UUID userId) {
         return ratingRepository.findRatingCountByUser(userId);
     }
@@ -61,16 +58,10 @@ public class RatingService {
      * --------------------------------------------------- */
 
     public boolean addNewRating(Rating rating) {
+        if(!validateStars(rating.getStars())) {
+            throw new WrongInputException();
+        }
         return ratingRepository.addNewRating(rating);
-    }
-
-
-    /* ---------------------------------------------------
-     * UPDATE
-     * --------------------------------------------------- */
-
-    public boolean updateRatingStatus(UUID ratingId, UUID currentUserId) {
-        return ratingRepository.updateRatingStatus(ratingId, currentUserId);
     }
 
 
@@ -82,9 +73,7 @@ public class RatingService {
         return ratingRepository.existsByUserAndMedia(currentUserId, mediaId);
     }
 
-    private void validateStars(int stars) {
-        if (stars < 1 || stars > 5) {
-            throw new IllegalArgumentException("Bewertung muss zwischen 1 und 5 Sternen liegen.");
-        }
+    private boolean validateStars(int stars) {
+        return stars >= 1 && stars <= 5;
     }
 }

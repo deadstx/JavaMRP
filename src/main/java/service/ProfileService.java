@@ -14,6 +14,7 @@ public class ProfileService {
 
     public ProfileService(ProfileRepository profileRepository,
                           RatingService ratingService, FavoriteService favoriteService) {
+
         this.profileRepository = profileRepository;
         this.ratingService = ratingService;
         this.favoriteService = favoriteService;

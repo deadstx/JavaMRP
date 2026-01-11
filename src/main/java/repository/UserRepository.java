@@ -1,6 +1,7 @@
 package repository;
 
 import dto.LeaderboardUserDto;
+import exception.ServerErrorException;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -33,7 +34,7 @@ public class UserRepository {
             }
 
         } catch (SQLException e) {
-            throw new RuntimeException("Fehler bei DB Zugriff", e);
+            throw new ServerErrorException();
         }
     }
 
@@ -47,14 +48,13 @@ public class UserRepository {
 
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
-                    // UUID direkt zurückgeben
                     return (UUID) rs.getObject("id");
                 }
                 return null;
             }
 
         } catch (SQLException e) {
-            throw new RuntimeException("Fehler bei DB Zugriff", e);
+            throw new ServerErrorException();
         }
     }
 

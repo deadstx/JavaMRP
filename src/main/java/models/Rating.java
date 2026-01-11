@@ -11,11 +11,8 @@ public class Rating {
     private int stars;
     private String createdAt;
 
-    // 🔹 Leerer Konstruktor für Jackson
-    public Rating() {
-    }
+    public Rating() {}
 
-    // 🔹 Voller Konstruktor (optional)
     public Rating(
             UUID id,
             UUID userId,
@@ -29,8 +26,6 @@ public class Rating {
         this.stars = stars;
         this.createdAt = createdAt;
     }
-
-    /* ---------------- GETTER ---------------- */
 
     public UUID getId() {
         return id;
@@ -53,7 +48,6 @@ public class Rating {
         return createdAt;
     }
 
-    /* ---------------- SETTER ---------------- */
 
     public void setId(UUID id) {
         this.id = id;
@@ -75,7 +69,7 @@ public class Rating {
         this.createdAt = createdAt;
     }
 
-    /* --------- HELPER FÜR POST --------- */
+    // helper für POST
 
     public void initNewRating(UUID userId, UUID mediaId) {
         this.id = UUID.randomUUID();

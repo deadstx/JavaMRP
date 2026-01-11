@@ -20,7 +20,7 @@ public class RegisterRepository {
             stmt.setString(1, username);
 
             try (ResultSet rs = stmt.executeQuery()) {
-                return rs.next(); // true, wenn ein Ergebnis existiert
+                return rs.next(); // true, wenn ein username schon vergeben
             }
         }
     }
