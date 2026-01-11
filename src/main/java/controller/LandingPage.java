@@ -14,7 +14,7 @@ public class LandingPage implements HttpHandler {
     public void handle(HttpExchange exchange) throws IOException {
 
         if(!Objects.equals(exchange.getRequestMethod(), "GET")) {
-            throw new NotFoundException(); // Method Not Allowed
+            throw new NotFoundException();
         } else {
             handleGet(exchange);
         }

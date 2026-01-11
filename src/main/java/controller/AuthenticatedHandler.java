@@ -33,7 +33,6 @@ public abstract class AuthenticatedHandler implements HttpHandler {
         }
     }
 
-
     protected UUID getCurrentUserId(HttpExchange exchange) throws UnauthorizedException {
         String token = extractToken(exchange);
 
@@ -43,7 +42,6 @@ public abstract class AuthenticatedHandler implements HttpHandler {
 
         return authService.getUserIdFromToken(token);
     }
-
 
     private String extractToken(HttpExchange exchange) {
         String cookieHeader = exchange.getRequestHeaders().getFirst("Cookie");

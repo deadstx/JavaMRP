@@ -40,7 +40,7 @@ public class RegisterHandler implements HttpHandler {
             String username = credentials.get("username");
             String password = credentials.get("password");
 
-            if (registerService.validateUsername(username) == false || registerService.validatePassword(password) == false) {
+            if (!registerService.validateUsername(username) || !registerService.validatePassword(password)) {
                 throw new WrongInputException();
             }
 
@@ -60,8 +60,7 @@ public class RegisterHandler implements HttpHandler {
             responseGenerator.sendJsonError(exchange, ex);
 
         } catch (Exception ex) {
-            ex.printStackTrace();
-            responseGenerator.sendJsonError(exchange, new ServerErrorException());
+            throw new ServerErrorException();
         }
     }
 }

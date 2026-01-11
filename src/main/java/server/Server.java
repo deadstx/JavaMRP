@@ -85,7 +85,7 @@ public class Server {
             server.createContext("/comments", new CommentHandler(authService, commentService));
 
             // RECOMMENDATIONS
-            server.createContext("/recommendations", new RecommendationHandler(authService, recommendationService, mediaService));
+            server.createContext("/recommendations", new RecommendationHandler(authService, recommendationService));
 
 
             // MEDIA

@@ -18,7 +18,6 @@ public class FavoriteHandler extends AuthenticatedHandler {
     private final ObjectMapper mapper = new ObjectMapper();
     private final FavoriteService service;
 
-    // UUID Regex
     private static final String UUID_REGEX =
             "[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-" +
                     "[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-" +
@@ -32,7 +31,6 @@ public class FavoriteHandler extends AuthenticatedHandler {
     @Override
     public void handle(HttpExchange exchange) throws IOException {
         try {
-            // Auth prüfen
             isAuthenticated(exchange);
 
             switch (exchange.getRequestMethod()) {
@@ -46,8 +44,7 @@ public class FavoriteHandler extends AuthenticatedHandler {
             responseGenerator.sendJsonError(exchange, ex);
 
         } catch (Exception ex) {
-            ex.printStackTrace();
-            responseGenerator.sendJsonError(exchange, new ServerErrorException());
+            throw new ServerErrorException();
         }
     }
 

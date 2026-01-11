@@ -66,7 +66,6 @@ public class LoginHandler implements HttpHandler {
             responseGenerator.sendJsonError(exchange, ex);
 
         } catch (Exception ex) {
-            ex.printStackTrace();
             responseGenerator.sendJsonError(exchange, new ServerErrorException());
         }
     }

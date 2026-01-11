@@ -59,8 +59,7 @@ public class GenericMediaHandler<T extends Media> extends AuthenticatedHandler {
             responseGenerator.sendJsonError(exchange, ex);
 
         } catch (Exception ex) {
-            ex.printStackTrace();
-            responseGenerator.sendJsonError(exchange, new ServerErrorException());
+            throw new ServerErrorException();
         }
     }
 
@@ -186,7 +185,7 @@ public class GenericMediaHandler<T extends Media> extends AuthenticatedHandler {
             throw new ServerErrorException();
         }
 
-        responseGenerator.sendJsonResponse(exchange, 201, "Media erstellt");
+        responseGenerator.sendJsonResponse(exchange, 201, "Eintrag erstellt");
     }
 
 
@@ -217,7 +216,7 @@ public class GenericMediaHandler<T extends Media> extends AuthenticatedHandler {
         }
 
         if (!service.existsById(mediaId)) {
-            throw MediaException.searchError(); // 404
+            throw MediaException.searchError();
         }
 
         if (media.getTitle() != null) {
@@ -232,7 +231,7 @@ public class GenericMediaHandler<T extends Media> extends AuthenticatedHandler {
             throw new ServerErrorException();
         }
 
-        responseGenerator.sendJsonResponse(exchange, 204, "");
+        responseGenerator.sendJsonResponse(exchange, 204, "Erfolgreich bearbeitet");
     }
 
 
@@ -256,7 +255,7 @@ public class GenericMediaHandler<T extends Media> extends AuthenticatedHandler {
             throw new ServerErrorException();
         }
 
-        responseGenerator.sendJsonResponse(exchange, 200, "Media gelöscht");
+        responseGenerator.sendJsonResponse(exchange, 200, "Eintrag gelöscht");
     }
 
     private void sendJson(HttpExchange exchange, int status, Object obj) throws IOException {

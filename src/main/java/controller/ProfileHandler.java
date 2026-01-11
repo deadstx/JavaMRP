@@ -16,7 +16,6 @@ public class ProfileHandler extends AuthenticatedHandler {
 
     private final ResponseGenerator responseGenerator = new ResponseGenerator();
     private final ProfileService profileService;
-
     private static final Pattern USER_ID_PATTERN =
             Pattern.compile("/profile/users/([0-9a-fA-F\\-]{36})");
 
@@ -30,17 +29,17 @@ public class ProfileHandler extends AuthenticatedHandler {
         try {
             isAuthenticated(exchange);
 
-            switch (exchange.getRequestMethod()) {
-                case "GET" -> handleGet(exchange);
-                default -> throw new NotFoundException();
+            if (exchange.getRequestMethod().equals("GET")) {
+                handleGet(exchange);
+            } else {
+                throw new NotFoundException();
             }
 
         } catch (ApiException ex) {
             responseGenerator.sendJsonError(exchange, ex);
 
         } catch (Exception ex) {
-            ex.printStackTrace();
-            responseGenerator.sendJsonError(exchange, new ServerErrorException());
+            throw new ServerErrorException();
         }
     }
 
@@ -50,14 +49,14 @@ public class ProfileHandler extends AuthenticatedHandler {
     private void handleGet(HttpExchange exchange) throws IOException, ApiException {
         String path = exchange.getRequestURI().getPath();
 
-        // /profile/users/{uuid}
+        // /profile/users/{uuid} (bestimmter User)
         UUID userId = extractUserIdFromPath(path);
         if (userId != null) {
             sendUserProfile(exchange, userId);
             return;
         }
 
-        // /profile/users  → aktueller User
+        // /profile/users (aktueller User)
         if ("/profile/users".equals(path)) {
             UUID currentUserId = getCurrentUserId(exchange);
             sendUserProfile(exchange, currentUserId);

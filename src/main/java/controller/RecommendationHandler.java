@@ -4,11 +4,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sun.net.httpserver.HttpExchange;
 import dto.MediaWithRatingDto;
 import exception.*;
-import models.Media;
 import server.ResponseGenerator;
 import service.AuthService;
-import service.FavoriteService;
-import service.MediaService;
 import service.RecommendationService;
 
 import java.io.IOException;
@@ -20,18 +17,11 @@ public class RecommendationHandler extends AuthenticatedHandler {
     private final ResponseGenerator responseGenerator = new ResponseGenerator();
     private final ObjectMapper mapper = new ObjectMapper();
     private final RecommendationService recommendationService;
-    private final MediaService mediaService;
 
-    // UUID Regex
-    private static final String UUID_REGEX =
-            "[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-" +
-                    "[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-" +
-                    "[0-9a-fA-F]{12}";
 
-    public RecommendationHandler(AuthService authService, RecommendationService recommendationService, MediaService mediaService) {
+    public RecommendationHandler(AuthService authService, RecommendationService recommendationService) {
         super(authService);
         this.recommendationService = recommendationService;
-        this.mediaService = mediaService;
     }
 
     @Override
@@ -40,17 +30,17 @@ public class RecommendationHandler extends AuthenticatedHandler {
             // Auth prüfen
             isAuthenticated(exchange);
 
-            switch (exchange.getRequestMethod()) {
-                case "GET" -> handleGet(exchange);
-                default -> throw new NotFoundException();
+            if (exchange.getRequestMethod().equals("GET")) {
+                handleGet(exchange);
+            } else {
+                throw new NotFoundException();
             }
 
         } catch (ApiException ex) {
             responseGenerator.sendJsonError(exchange, ex);
 
         } catch (Exception ex) {
-            ex.printStackTrace();
-            responseGenerator.sendJsonError(exchange, new ServerErrorException());
+            throw new ServerErrorException();
         }
     }
 

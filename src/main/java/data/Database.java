@@ -3,8 +3,6 @@ package data;
 import java.sql.Connection;
 import java.sql.DriverManager;
 
-import data.DatabaseConfig;
-
 public class Database {
 
     public static void setupDB() {

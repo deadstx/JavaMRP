@@ -18,7 +18,6 @@ public class CommentHandler extends AuthenticatedHandler {
     private final ObjectMapper mapper = new ObjectMapper();
     private final CommentService service;
 
-    // UUID Regex
     private static final String UUID_REGEX =
             "[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-" +
                     "[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-" +
@@ -32,7 +31,6 @@ public class CommentHandler extends AuthenticatedHandler {
     @Override
     public void handle(HttpExchange exchange) throws IOException {
         try {
-            // Authentifizierung prüfen
             isAuthenticated(exchange);
 
             switch (exchange.getRequestMethod()) {
@@ -48,9 +46,7 @@ public class CommentHandler extends AuthenticatedHandler {
             responseGenerator.sendJsonError(exchange, ex);
 
         } catch (Exception ex) {
-            ex.printStackTrace();
-            ApiException internal = new ServerErrorException();
-            responseGenerator.sendJsonError(exchange, internal);
+            throw new ServerErrorException();
         }
     }
 
