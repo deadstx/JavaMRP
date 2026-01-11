@@ -18,17 +18,14 @@ public class MediaRepository {
         this.conn = conn;
     }
 
-    // ========================
-    // FIND ALL (optional nach Typ)
-    // ========================
     public List<Media> findAll(Optional<MediaType> mediaType) {
         List<Media> mediaList = new ArrayList<>();
 
         String sql = """
-            SELECT id, title, description, director, release_year, genres,
-                   age_restriction, creator_id, created_at, media_type
-            FROM media
-            """ + (mediaType.isPresent() ? "WHERE media_type = ?" : "");
+        SELECT id, title, description, director, release_year, genres,
+               age_restriction, creator_id, created_at, media_type
+        FROM media
+    """ + (mediaType.isPresent() ? "WHERE media_type = ?::media_type_enum" : "");
 
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
 
@@ -48,6 +45,7 @@ public class MediaRepository {
 
         return mediaList;
     }
+
 
     public List<Media> findByFilter(MediaFilter filterType, Object value) {
         List<Media> mediaList = new ArrayList<>();
@@ -278,9 +276,9 @@ public class MediaRepository {
             creator_id,
             media_type
         )
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?::media_type_enum)
         RETURNING id
-        """;
+    """;
 
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, media.getTitle());
@@ -289,8 +287,8 @@ public class MediaRepository {
             stmt.setInt(4, media.getReleaseYear());
             stmt.setString(5, media.getGenre());
             stmt.setInt(6, media.getAgeRestriction());
-            stmt.setObject(7, media.getCreatorId());
-            stmt.setString(8, media.getMediaType());
+            stmt.setObject(7, media.getCreatorId()); // UUID
+            stmt.setString(8, media.getMediaType()); // Enum → String für DB
 
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
@@ -299,11 +297,14 @@ public class MediaRepository {
                 }
             }
         } catch (SQLException e) {
+            e.printStackTrace();
             return false;
         }
 
         return false;
     }
+
+
 
 
     public boolean update(Media media) {

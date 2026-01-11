@@ -125,6 +125,7 @@ public class GenericMediaHandler<T extends Media> extends AuthenticatedHandler {
                 default -> Optional.empty();
             };
 
+            System.out.println("media type:" + mediaType);
             if (mediaType.isEmpty()) {
                 throw new NotFoundException();
             }
@@ -181,6 +182,7 @@ public class GenericMediaHandler<T extends Media> extends AuthenticatedHandler {
 
         // === Speichern ===
         boolean created = service.create(media, currentUserId);
+
         if (!created) {
             throw new ServerErrorException();
         }

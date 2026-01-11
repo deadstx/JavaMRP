@@ -54,6 +54,7 @@ public class MediaService {
     // ========================
     public boolean create(Media media, UUID currentUserId) {
         media.setCreatorId(currentUserId);
+        System.out.println("SERVICE: " + currentUserId);
         return repo.insert(media);
     }
 

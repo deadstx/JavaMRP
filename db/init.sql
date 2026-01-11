@@ -21,7 +21,6 @@ DO $$
 -- ======================================================
 -- Drop tables (clean start)
 -- ======================================================
-DROP TABLE IF EXISTS rating_likes;
 DROP TABLE IF EXISTS favorites;
 DROP TABLE IF EXISTS comments;
 DROP TABLE IF EXISTS ratings;
@@ -55,8 +54,7 @@ CREATE TABLE media (
 );
 
 -- ======================================================
--- Ratings (stars only)
--- One rating per user per media
+-- Ratings
 -- ======================================================
 CREATE TABLE ratings (
                          id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
@@ -68,18 +66,7 @@ CREATE TABLE ratings (
 );
 
 -- ======================================================
--- Rating Likes
--- ======================================================
-CREATE TABLE rating_likes (
-                              id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-                              rating_id UUID NOT NULL REFERENCES ratings(id) ON DELETE CASCADE,
-                              user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-                              created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                              UNIQUE (rating_id, user_id)
-);
-
--- ======================================================
--- Comments (separate from ratings)
+-- Comments
 -- ======================================================
 CREATE TABLE comments (
                           id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
@@ -102,7 +89,7 @@ CREATE TABLE favorites (
 );
 
 -- ======================================================
--- Indexes (Performance)
+-- Indexes
 -- ======================================================
 CREATE INDEX idx_media_type ON media(media_type);
 CREATE INDEX idx_ratings_media ON ratings(media_id);
