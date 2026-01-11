@@ -24,8 +24,8 @@ class AuthServiceTest {
     AuthService authService;
 
     @Test
-    void isValidLogin_correctPassword_shouldReturnTrue() {
-        String username = "max";
+    void isValidLogin_CorrectFormat() {
+        String username = "myUsername";
         String password = "secret123";
 
         String hash = BCrypt.hashpw(password, BCrypt.gensalt());
@@ -65,7 +65,7 @@ class AuthServiceTest {
 
     @Test
     void generateToken_shouldCreateValidToken() {
-        String username = "max";
+        String username = "testUsername";
 
         String token = authService.generateToken(username);
 
@@ -75,7 +75,7 @@ class AuthServiceTest {
 
     @Test
     void verifyToken_validToken_shouldNotThrow() {
-        String token = authService.generateToken("max");
+        String token = authService.generateToken("testUsername");
 
         assertDoesNotThrow(() -> authService.verifyToken(token));
     }

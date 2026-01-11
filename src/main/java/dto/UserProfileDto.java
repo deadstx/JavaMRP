@@ -19,5 +19,5 @@ public class UserProfileDto {
     public UUID getId() { return id; }
     public String getUsername() { return username; }
     public int getRatingCount() { return ratingCount; }
-    public String getfavoriteGenre() {return favoriteGenre; }
+    public String getFavoriteGenre() {return favoriteGenre; }
 }
