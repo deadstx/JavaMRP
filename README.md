@@ -29,3 +29,6 @@ Setup Account -> Erstellt Test user und Media Einträge
 Danach müssen alle Media_ids aus der DB in die Lise in CreateRatings_Comments kopiert werden
 CreateRatings_Comments ausführen
 In CheckListTests können dann die gewünschten Media Ids reinkopiert werden und das Skript zeigt alle Server antworten
+
+
+Link to Github REPO https://github.com/deadstx/JavaMRP

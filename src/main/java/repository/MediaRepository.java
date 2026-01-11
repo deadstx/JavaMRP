@@ -287,8 +287,8 @@ public class MediaRepository {
             stmt.setInt(4, media.getReleaseYear());
             stmt.setString(5, media.getGenre());
             stmt.setInt(6, media.getAgeRestriction());
-            stmt.setObject(7, media.getCreatorId()); // UUID
-            stmt.setString(8, media.getMediaType()); // Enum → String für DB
+            stmt.setObject(7, media.getCreatorId());
+            stmt.setString(8, media.getMediaType());
 
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
@@ -316,7 +316,7 @@ public class MediaRepository {
             release_year = ?,
             genres = ?,
             age_restriction = ?,
-            media_type = ?
+            media_type = ?::media_type_enum
         WHERE id = ? AND creator_id = ?
         """;
 
@@ -331,12 +331,12 @@ public class MediaRepository {
             stmt.setObject(8, media.getCreatorId());
 
             int affectedRows = stmt.executeUpdate();
-            return affectedRows > 0; // true = Update erfolgreich
+            return affectedRows > 0;
         } catch (SQLException e) {
+            e.printStackTrace();
             return false;
         }
     }
-
 
     // ========================
     // DELETE (nur Ersteller)

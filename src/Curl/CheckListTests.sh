@@ -14,9 +14,9 @@ PASSWORD="TestPassword123!"
 
 # Media Einträge (IDs für Bewertungen, Kommentare, Favoriten)
 media_ids=(
-  "f4170005-8415-46d0-9fea-d31e83560e5d"
-   "b51ea323-c0ec-48cd-89f7-ff55c266776f"
-   "46b7a2fe-72e6-469c-a985-a168811cb653"
+  "2e508197-8a52-4afa-9a97-521e6a7e8826"
+   "3d1e5ed4-7483-47e7-85ca-92280ec6ccac"
+   "897436d1-d5e5-4f67-abf5-d19afca07845"
 
 )
 
@@ -89,6 +89,18 @@ print_step "Einen spezifischen Media Eintrag abrufen"
 for media_id in "${media_ids[@]}"; do
   get "$BASE_URL/media/$media_id"
 done
+
+
+print_step "Einen Eintrag bearbeiten"
+put "$BASE_URL/media/2e508197-8a52-4afa-9a97-521e6a7e8826" '{
+  "director": "Changes director",
+  "description": "Changed description",
+  "mediaType": "movie",
+  "genre": "action",
+  "ageRestriction": 12,
+  "releaseYear": 2000
+}'
+
 
 print_step "Alle Filme abrufen"
 get "$BASE_URL/media/movies"
